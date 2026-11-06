@@ -1,0 +1,581 @@
+<title>Leçon 1 · La boucle for</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout : un carnet de mission spatiale, une colonne de lecture,
+   chaque exercice est une "étape de mission" avec son propre éditeur. */
+:root {
+  --bg: #f2f5fa;
+  --paper: #ffffff;
+  --ink: #15213a;
+  --muted: #5a6680;
+  --line: #d9e0ec;
+  --accent: #2f5bd3;
+  --accent-soft: #e3eafc;
+  --flame: #d9601c;
+  --flame-soft: #fde9dc;
+  --ok: #18804a;
+  --ok-soft: #dcf3e6;
+  --err: #b4232f;
+  --err-soft: #fbe3e5;
+  --code-bg: #101a2e;
+  --code-ink: #e5ecfa;
+  --code-kw: #ff9e64;
+  --code-fn: #7dcfff;
+  --code-str: #a6e3a1;
+  --code-num: #f9d36b;
+  --code-com: #8090b0;
+  --font-display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c1322; --paper: #131d33; --ink: #e8eefb; --muted: #9eabc6; --line: #26324d;
+    --accent: #7ea2ff; --accent-soft: #1d2a4d; --flame: #ff8a4c; --flame-soft: #3a2218;
+    --ok: #5fd394; --ok-soft: #143326; --err: #ff7a85; --err-soft: #3a1820;
+    --code-bg: #0a1020; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c1322; --paper: #131d33; --ink: #e8eefb; --muted: #9eabc6; --line: #26324d;
+  --accent: #7ea2ff; --accent-soft: #1d2a4d; --flame: #ff8a4c; --flame-soft: #3a2218;
+  --ok: #5fd394; --ok-soft: #143326; --err: #ff7a85; --err-soft: #3a1820;
+  --code-bg: #0a1020; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 17px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 64px;
+}
+.wrap { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.1rem, 6vw, 3.2rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 800; }
+h3 { font-size: 1.2rem; font-weight: 600; }
+p { margin: 0; }
+code { font-family: var(--font-mono); font-size: 0.9em; background: var(--accent-soft); color: var(--ink); padding: 1px 6px; border-radius: 5px; }
+a { color: var(--accent); }
+
+/* Bandeau d'ouverture */
+.hero { padding-top: 40px; display: flex; flex-direction: column; gap: 14px; }
+.eyebrow { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+.hero p.lead { font-size: 1.15rem; color: var(--muted); max-width: 60ch; }
+.countdown { font-family: var(--font-mono); font-size: 0.95rem; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; color: var(--muted); }
+.countdown span { display: inline-grid; place-items: center; min-width: 2.1em; height: 2.1em; border-radius: 6px; background: var(--paper); border: 1px solid var(--line); color: var(--ink); }
+.countdown span.go { background: var(--flame); border-color: var(--flame); color: #fff; padding: 0 10px; font-weight: 600; }
+
+/* Sommaire */
+.toc { display: flex; flex-wrap: wrap; gap: 8px; }
+.toc a { text-decoration: none; font-size: 0.92rem; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); }
+.toc a:hover, .toc a:focus-visible { border-color: var(--accent); color: var(--accent); }
+
+section { display: flex; flex-direction: column; gap: 14px; }
+.part-label { font-family: var(--font-mono); font-size: 0.78rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+
+/* Encadrés */
+.note { border-radius: 10px; padding: 14px 16px; background: var(--accent-soft); display: flex; gap: 12px; }
+.note.warn { background: var(--flame-soft); }
+.note > div { min-width: 0; }
+.note b { font-weight: 700; }
+.note .ico { font-size: 1.3rem; line-height: 1.3; }
+
+/* Code (lecture) */
+.code { margin: 0; background: var(--code-bg); color: var(--code-ink); font-family: var(--font-mono); font-size: 0.92rem; line-height: 1.6; padding: 14px 16px; border-radius: 10px; overflow-x: auto; white-space: pre; }
+.k { color: var(--code-kw); } .f { color: var(--code-fn); } .s { color: var(--code-str); } .n { color: var(--code-num); } .c { color: var(--code-com); font-style: italic; }
+.out { margin: 0; font-family: var(--font-mono); font-size: 0.88rem; background: var(--paper); border: 1px dashed var(--line); border-radius: 10px; padding: 10px 14px; white-space: pre; overflow-x: auto; color: var(--ink); }
+.out::before { content: "Ce qui s'affiche :"; display: block; font-family: var(--font-body); font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
+
+/* Tableau range */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+th { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 700; }
+td code { white-space: nowrap; }
+
+/* Visualiseur de range */
+.rangeviz { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.rangeviz .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; font-family: var(--font-mono); font-size: 0.95rem; }
+.rangeviz input { width: 4.2em; font-family: var(--font-mono); font-size: 1rem; padding: 4px 6px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
+.rangeviz .cells { display: flex; flex-wrap: wrap; gap: 6px; min-height: 36px; }
+.rangeviz .cell { min-width: 36px; height: 36px; padding: 0 6px; display: grid; place-items: center; border-radius: 8px; background: var(--accent-soft); color: var(--accent); font-family: var(--font-mono); font-weight: 600; }
+.rangeviz .msg { font-size: 0.9rem; color: var(--muted); }
+
+/* Éditeurs */
+.lab { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+.lab-head { padding: 16px 18px 6px; display: flex; flex-direction: column; gap: 8px; }
+.lab-head .title-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
+.stars { font-size: 0.85rem; color: var(--muted); font-family: var(--font-mono); }
+.lab.defi { border-color: var(--flame); }
+.lab.defi .stars { color: var(--flame); font-weight: 600; }
+.lab-head ul { margin: 0; padding-left: 20px; }
+.expected { margin: 0; font-family: var(--font-mono); font-size: 0.85rem; background: var(--bg); border-radius: 8px; padding: 8px 12px; white-space: pre; overflow-x: auto; }
+.expected::before { content: "Résultat attendu :"; display: block; font-family: var(--font-body); font-size: 0.75rem; color: var(--muted); margin-bottom: 2px; }
+details.hint { font-size: 0.95rem; }
+details.hint summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+details.hint p { margin-top: 6px; color: var(--muted); }
+
+.editor-box { padding: 10px 18px 0; }
+textarea.editor {
+  width: 100%; min-height: 150px; resize: vertical;
+  background: var(--code-bg); color: var(--code-ink); caret-color: var(--code-num);
+  font-family: var(--font-mono); font-size: 0.95rem; line-height: 1.6;
+  border: 2px solid transparent; border-radius: 10px; padding: 12px 14px;
+  tab-size: 4; white-space: pre; overflow-x: auto;
+}
+textarea.editor:focus { outline: none; border-color: var(--accent); }
+textarea.editor::placeholder { color: var(--code-com); }
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 18px; }
+button {
+  font-family: var(--font-body); font-size: 0.95rem; font-weight: 700;
+  padding: 8px 16px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--paper); color: var(--ink); cursor: pointer;
+}
+button:hover { border-color: var(--accent); }
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+button.run { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.run:hover { filter: brightness(1.08); }
+button:disabled { opacity: 0.55; cursor: default; }
+.status { font-size: 0.85rem; color: var(--muted); margin-left: auto; }
+.status.saved { color: var(--ok); }
+
+.console { margin: 0 18px 16px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; font-family: var(--font-mono); font-size: 0.9rem; white-space: pre-wrap; word-break: break-word; min-height: 2.6em; }
+.console .placeholder { color: var(--muted); font-family: var(--font-body); }
+.console .err { color: var(--err); }
+.console .tip { display: block; margin-top: 6px; padding: 8px 10px; border-radius: 8px; background: var(--err-soft); color: var(--ink); font-family: var(--font-body); white-space: normal; }
+.console .done { color: var(--ok); font-family: var(--font-body); font-size: 0.8rem; }
+.console .in-line { display: inline-flex; gap: 6px; align-items: center; }
+.console input.stdin { font-family: var(--font-mono); font-size: 0.9rem; padding: 3px 8px; border-radius: 6px; border: 2px solid var(--accent); background: var(--paper); color: var(--ink); width: 12em; max-width: 60vw; }
+.console .typed { color: var(--accent); font-weight: 600; }
+
+.mini { font-size: 0.85rem; color: var(--muted); }
+.send-panel { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+footer { color: var(--muted); font-size: 0.85rem; }
+@media (prefers-reduced-motion: no-preference) {
+  .countdown span.go { animation: pulse 2.4s ease-in-out infinite; }
+  @keyframes pulse { 50% { transform: translateY(-2px); } }
+}
+</style>
+
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Carnet de mission · Python · Leçon 1</div>
+  <h1>La boucle <span style="color:var(--accent)">for</span></h1>
+  <p class="lead">Répéter des instructions sans les recopier. C'est grâce aux boucles que ta fusée pourra faire son compte à rebours.</p>
+  <div class="countdown" aria-hidden="true"><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span><span class="go">Décollage</span></div>
+  <nav class="toc" aria-label="Sommaire">
+    <a href="#pourquoi">Pourquoi ?</a>
+    <a href="#comment">Comment ça marche</a>
+    <a href="#range">range()</a>
+    <a href="#exemples">Exemples</a>
+    <a href="#erreurs">Erreurs classiques</a>
+    <a href="#exos">Exercices</a>
+  </nav>
+</header>
+
+<section id="pourquoi">
+  <div class="part-label">Partie 1</div>
+  <h2>À quoi ça sert ?</h2>
+  <p>Tu veux afficher « Bonjour » 5 fois. Sans boucle, il faut écrire 5 lignes :</p>
+<pre class="code"><span class="f">print</span>(<span class="s">"Bonjour"</span>)
+<span class="f">print</span>(<span class="s">"Bonjour"</span>)
+<span class="f">print</span>(<span class="s">"Bonjour"</span>)
+<span class="f">print</span>(<span class="s">"Bonjour"</span>)
+<span class="f">print</span>(<span class="s">"Bonjour"</span>)</pre>
+  <p>Et pour 1000 fois ? Impossible. Avec une boucle <code>for</code>, 2 lignes suffisent :</p>
+<pre class="code"><span class="k">for</span> i <span class="k">in</span> <span class="f">range</span>(<span class="n">5</span>):
+    <span class="f">print</span>(<span class="s">"Bonjour"</span>)</pre>
+</section>
+
+<section id="comment">
+  <div class="part-label">Partie 2</div>
+  <h2>Comment ça marche ?</h2>
+<pre class="code"><span class="k">for</span> i <span class="k">in</span> <span class="f">range</span>(<span class="n">5</span>):
+    <span class="f">print</span>(i)</pre>
+<pre class="out">0
+1
+2
+3
+4</pre>
+  <ul>
+    <li><code>i</code> est une variable qui <b>change à chaque tour</b>. On l'appelle le compteur.</li>
+    <li><code>range(5)</code> donne 5 nombres : <b>0, 1, 2, 3, 4</b>. On commence à 0, et 5 n'est pas inclus.</li>
+    <li>Les deux-points <code>:</code> à la fin de la ligne sont obligatoires.</li>
+    <li>Tout ce qui est <b>décalé de 4 espaces</b> (l'indentation) est répété.</li>
+  </ul>
+  <div class="note warn"><span class="ico">⚠️</span><div>
+    <b>L'indentation compte.</b> Ici, seule la première ligne est répétée :
+<pre class="code" style="margin-top:8px"><span class="k">for</span> i <span class="k">in</span> <span class="f">range</span>(<span class="n">3</span>):
+    <span class="f">print</span>(<span class="s">"dans la boucle"</span>)   <span class="c"># répété 3 fois</span>
+<span class="f">print</span>(<span class="s">"après la boucle"</span>)      <span class="c"># affiché 1 seule fois</span></pre>
+  </div></div>
+</section>
+
+<section id="range">
+  <div class="part-label">Partie 3</div>
+  <h2>Les façons d'utiliser range()</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Écriture</th><th>Nombres obtenus</th><th>Explication</th></tr></thead>
+    <tbody>
+      <tr><td><code>range(5)</code></td><td>0, 1, 2, 3, 4</td><td>de 0 jusqu'à 5 exclu</td></tr>
+      <tr><td><code>range(2, 6)</code></td><td>2, 3, 4, 5</td><td>de 2 jusqu'à 6 exclu</td></tr>
+      <tr><td><code>range(0, 10, 2)</code></td><td>0, 2, 4, 6, 8</td><td>de 2 en 2</td></tr>
+      <tr><td><code>range(10, 0, -1)</code></td><td>10, 9, …, 1</td><td>à l'envers</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note"><span class="ico">💡</span><div>Retiens : <code>range(début, fin, pas)</code>. La <b>fin n'est jamais incluse</b>.</div></div>
+
+  <div class="rangeviz" aria-labelledby="rv-title">
+    <h3 id="rv-title">Le simulateur de range()</h3>
+    <p class="mini">Change les nombres et regarde quelles valeurs prend <code>i</code>.</p>
+    <div class="controls">
+      <span>range(</span>
+      <label class="sr"><input id="rv-start" type="number" value="0" aria-label="début"></label><span>,</span>
+      <label><input id="rv-end" type="number" value="10" aria-label="fin"></label><span>,</span>
+      <label><input id="rv-step" type="number" value="2" aria-label="pas"></label>
+      <span>)</span>
+    </div>
+    <div class="cells" id="rv-cells"></div>
+    <div class="msg" id="rv-msg"></div>
+  </div>
+</section>
+
+<section id="exemples">
+  <div class="part-label">Partie 4</div>
+  <h2>Exemples à tester</h2>
+  <p>Ces exemples sont modifiables. Appuie sur <b>▶ Lancer</b>, puis change le code pour voir ce qui se passe.</p>
+  <div id="examples"></div>
+  <div class="note"><span class="ico">🧠</span><div>
+    <b>L'accumulateur</b> (exemple B) est une technique très importante : une variable créée <b>avant</b> la boucle, modifiée <b>dans</b> la boucle, affichée <b>après</b>.
+  </div></div>
+</section>
+
+<section id="erreurs">
+  <div class="part-label">Partie 5</div>
+  <h2>Les erreurs classiques</h2>
+  <ul>
+    <li>Oublier les <code>:</code> → <code>SyntaxError</code></li>
+    <li>Oublier de décaler le code → <code>IndentationError</code></li>
+    <li>Croire que <code>range(10)</code> va jusqu'à 10. Il s'arrête à 9.</li>
+    <li>Mettre <code>total = 0</code> <b>dans</b> la boucle : il est remis à zéro à chaque tour.</li>
+  </ul>
+</section>
+
+<section id="exos">
+  <div class="part-label">Partie 6 · à toi de jouer</div>
+  <h2>Exercices</h2>
+  <p>Écris ton code dans le cadre sombre, puis appuie sur <b>▶ Lancer</b>. Ton code est enregistré automatiquement à chaque lancement. Si tu bloques, ouvre l'indice.</p>
+  <p class="mini">Astuce : la touche Tab ajoute 4 espaces, et après une ligne qui finit par <code>:</code>, la touche Entrée décale la ligne suivante toute seule.</p>
+  <div id="exercises"></div>
+</section>
+
+<section class="send-panel" aria-labelledby="send-title">
+  <h3 id="send-title">Quand tu as fini</h3>
+  <p>Reviens dans la conversation avec Claude et écris <b>« corrige »</b>. Claude lira directement ce que tu as écrit ici.</p>
+  <p class="mini" id="save-info">Connexion à la sauvegarde…</p>
+  <div><button id="copy-all">Copier tout mon code</button> <span class="mini" id="copy-msg"></span></div>
+  <textarea id="copy-fallback" hidden readonly style="width:100%;min-height:120px;font-family:var(--font-mono)"></textarea>
+</section>
+
+<footer>Carnet de mission · Objectif X & MIT 🚀</footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
+<script>
+(function () {
+  // ---------- Contenu ----------
+  const EXAMPLES = [
+    { id: "exA", title: "Exemple A · La table de 3",
+      code: 'for i in range(1, 11):\n    print("3 x", i, "=", 3 * i)\n' },
+    { id: "exB", title: "Exemple B · Faire une somme (l'accumulateur)",
+      code: 'total = 0                  # on part de 0\nfor i in range(1, 11):\n    total = total + i      # on ajoute i à chaque tour\nprint("La somme vaut", total)\n' },
+    { id: "exC", title: "Exemple C · Parcourir un mot",
+      code: 'for lettre in "FUSEE":\n    print(lettre)\n' },
+    { id: "exD", title: "Exemple D · Avec input et if",
+      code: 'n = int(input("Jusqu\'à combien ? "))\nfor i in range(1, n + 1):\n    if i % 2 == 0:\n        print(i, "est pair")\n' },
+  ];
+
+  const EXERCISES = [
+    { id: "ex1", stars: "⭐", title: "1. Le compte à rebours de la fusée 🚀",
+      text: "<p>Affiche les nombres de <b>10 à 1</b> (un par ligne), puis affiche <code>Décollage ! 🚀</code>.</p>",
+      expected: "10\n9\n8\n...\n1\nDécollage ! 🚀",
+      hint: "Regarde la dernière ligne du tableau de range(). Comment compter à l'envers ? Et attention : la fin n'est jamais incluse, donc pour s'arrêter à 1, quelle fin faut-il mettre ?" },
+    { id: "ex2", stars: "⭐", title: "2. La table de multiplication",
+      text: "<p>Demande un nombre avec <code>input()</code>, puis affiche sa table de multiplication de 1 à 10.</p>",
+      expected: "Quel nombre ? 7\n7 x 1 = 7\n7 x 2 = 14\n...\n7 x 10 = 70",
+      hint: "input() donne du texte. Pour faire des calculs, transforme-le en nombre avec int(...). Ensuite, inspire-toi de l'exemple A." },
+    { id: "ex3", stars: "⭐⭐", title: "3. Le carburant de la fusée ⛽",
+      text: "<p>La fusée consomme 1 litre la 1re seconde, 2 litres la 2e, 3 litres la 3e, etc. Demande la durée du vol en secondes, puis affiche le carburant <b>total</b> consommé.</p>",
+      expected: "Durée du vol ? 4\nCarburant consommé : 10 litres",
+      hint: "Pour 4 secondes : 1 + 2 + 3 + 4 = 10. C'est exactement la technique de l'accumulateur (exemple B). Pense à aller jusqu'à la durée incluse." },
+    { id: "ex4", stars: "⭐⭐⭐", title: "4. Compter les voyelles 🔤",
+      text: "<p>Demande un mot, puis affiche combien il contient de voyelles (a, e, i, o, u, y).</p><p>Teste aussi avec « polytechnique » et compte à la main pour vérifier.</p>",
+      expected: "Ton mot ? fusee\nIl y a 3 voyelles",
+      hint: "Parcours le mot lettre par lettre (exemple C). Pour savoir si une lettre est une voyelle : if lettre in \"aeiouy\":. Il te faut aussi un compteur qui commence à 0." },
+    { id: "ex5", stars: "🔥 Défi", defi: true, title: "5. La pyramide de la fusée",
+      text: "<p>Demande un nombre <code>n</code>, puis dessine une pyramide <b>centrée</b> de <code>n</code> étages avec des étoiles.</p><p><b>Bonus 🔥🔥</b> : ajoute en dessous le corps de la fusée (par exemple 2 lignes <code>|||</code>) bien centré.</p>",
+      expected: "Combien d'étages ? 4\n   *\n  ***\n *****\n*******",
+      hint: "En Python, \"*\" * 3 donne \"***\" et \" \" * 2 donne \"  \". Fais un tableau sur papier pour n = 4 : à l'étage 1, combien d'espaces et d'étoiles ? À l'étage 2 ? Trouve la règle." },
+  ];
+
+  // ---------- Stockage ----------
+  let db = null;
+  const LS = "lecon1-";
+  function lsGet(k) { try { return localStorage.getItem(LS + k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(LS + k, v); } catch (e) {} }
+
+  const saveInfo = document.getElementById("save-info");
+  const editors = {};
+  const statuses = {};
+  const pending = {};
+  const lastSaved = {};
+
+  async function saveRemote(id) {
+    if (!db) return;
+    const code = editors[id].value;
+    if (lastSaved[id] === code) return;
+    if (pending[id]) { pending[id].again = true; return; }
+    pending[id] = { again: false };
+    try {
+      await db.doc("reponses/" + id).set({ exercice: id, code: code, misAJour: new Date().toISOString() });
+      lastSaved[id] = code;
+      statuses[id].textContent = "✓ Enregistré pour Claude";
+      statuses[id].className = "status saved";
+    } catch (e) {
+      statuses[id].textContent = "Enregistré sur cet appareil seulement";
+      statuses[id].className = "status";
+    }
+    const again = pending[id].again; pending[id] = null;
+    if (again) saveRemote(id);
+  }
+
+  // ---------- Éditeur ----------
+  function setupEditor(ta) {
+    ta.addEventListener("keydown", (e) => {
+      if (e.key === "Tab" && !e.shiftKey) {
+        e.preventDefault();
+        ta.setRangeText("    ", ta.selectionStart, ta.selectionEnd, "end");
+        ta.dispatchEvent(new Event("input"));
+      } else if (e.key === "Enter" && !e.isComposing) {
+        const before = ta.value.slice(0, ta.selectionStart);
+        const line = before.slice(before.lastIndexOf("\n") + 1);
+        let indent = (line.match(/^ */) || [""])[0];
+        if (/:\s*(#.*)?$/.test(line)) indent += "    ";
+        e.preventDefault();
+        ta.setRangeText("\n" + indent, ta.selectionStart, ta.selectionEnd, "end");
+        ta.dispatchEvent(new Event("input"));
+      }
+    });
+  }
+
+  // ---------- Exécution Python (Skulpt) ----------
+  function frenchTip(msg) {
+    if (/IndentationError|unexpected indent|expected an indented block|unindent/i.test(msg))
+      return "Problème d'indentation : vérifie que les lignes dans la boucle sont décalées de 4 espaces, et que les autres ne le sont pas.";
+    if (/SyntaxError/i.test(msg))
+      return "Erreur de syntaxe : as-tu oublié les deux-points « : » à la fin du for ou du if ? Une parenthèse ou un guillemet qui n'est pas fermé ?";
+    if (/NameError/i.test(msg))
+      return "Python ne connaît pas un nom. Vérifie l'orthographe (majuscules comprises) et que la variable est créée avant d'être utilisée.";
+    if (/TypeError/i.test(msg) && /str/i.test(msg))
+      return "Tu mélanges du texte et des nombres. Rappel : input() donne du texte, utilise int(...) pour le transformer en nombre.";
+    if (/ValueError/i.test(msg))
+      return "La valeur tapée ne peut pas être transformée en nombre. Tape un nombre entier, par exemple 7.";
+    if (/TimeLimitError|time limit/i.test(msg))
+      return "Ton programme tourne trop longtemps. Ta boucle a-t-elle beaucoup trop de tours ?";
+    return "";
+  }
+
+  let running = false;
+  function makeRunner(ta, consoleEl, runBtn, onRun) {
+    runBtn.addEventListener("click", () => {
+      if (running) return;
+      if (typeof Sk === "undefined") {
+        consoleEl.innerHTML = '<span class="err">Le moteur Python ne s\'est pas chargé. Vérifie ta connexion internet et recharge la page.</span>';
+        return;
+      }
+      running = true;
+      document.querySelectorAll("button.run").forEach(b => b.disabled = true);
+      consoleEl.textContent = "";
+      const outNode = () => { const s = document.createElement("span"); consoleEl.appendChild(s); return s; };
+      Sk.configure({
+        __future__: Sk.python3,
+        output: (t) => { outNode().textContent = t; },
+        read: (f) => {
+          if (Sk.builtinFiles === undefined || Sk.builtinFiles.files[f] === undefined) throw "Fichier introuvable : " + f;
+          return Sk.builtinFiles.files[f];
+        },
+        inputfunTakesPrompt: true,
+        inputfun: (promptText) => new Promise((resolve) => {
+          const wrap = document.createElement("span"); wrap.className = "in-line";
+          const p = document.createElement("span"); p.textContent = promptText || "";
+          const inp = document.createElement("input"); inp.className = "stdin"; inp.type = "text";
+          inp.setAttribute("aria-label", "Réponse à input()"); inp.placeholder = "tape puis Entrée";
+          wrap.append(p, inp); consoleEl.appendChild(wrap);
+          inp.focus();
+          inp.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              const v = inp.value;
+              const typed = document.createElement("span"); typed.className = "typed"; typed.textContent = v;
+              wrap.replaceWith(p, typed, document.createTextNode("\n"));
+              resolve(v);
+            }
+          });
+        }),
+        execLimit: 8000,
+      });
+      onRun && onRun();
+      Sk.misceval.asyncToPromise(() => Sk.importMainWithBody("<stdin>", false, ta.value, true))
+        .then(() => {
+          if (!consoleEl.textContent) consoleEl.innerHTML = '<span class="placeholder">(Ton programme n\'a rien affiché.)</span>';
+          const d = document.createElement("span"); d.className = "done"; d.textContent = (consoleEl.textContent.endsWith("\n") ? "" : "\n") + "— fin du programme —"; consoleEl.appendChild(d);
+        })
+        .catch((err) => {
+          let msg = err && err.toString ? err.toString() : String(err);
+          const lineMatch = msg.match(/on line (\d+)/);
+          const e = document.createElement("span"); e.className = "err";
+          e.textContent = (consoleEl.textContent ? "\n" : "") + "Erreur : " + msg;
+          consoleEl.appendChild(e);
+          const tip = frenchTip(msg);
+          if (tip) { const t = document.createElement("span"); t.className = "tip"; t.textContent = "💡 " + tip + (lineMatch ? " (regarde la ligne " + lineMatch[1] + ")" : ""); consoleEl.appendChild(t); }
+        })
+        .finally(() => {
+          running = false;
+          document.querySelectorAll("button.run").forEach(b => b.disabled = false);
+        });
+    });
+  }
+
+  function buildLab(item, isExercise) {
+    const lab = document.createElement("div");
+    lab.className = "lab" + (item.defi ? " defi" : "");
+    const head = document.createElement("div"); head.className = "lab-head";
+    head.innerHTML = '<div class="title-row"><h3></h3>' + (item.stars ? '<span class="stars"></span>' : "") + "</div>";
+    head.querySelector("h3").textContent = item.title;
+    if (item.stars) head.querySelector(".stars").textContent = item.stars;
+    if (isExercise) {
+      const body = document.createElement("div"); body.innerHTML = item.text; head.appendChild(body);
+      const ex = document.createElement("pre"); ex.className = "expected"; ex.textContent = item.expected; head.appendChild(ex);
+      const det = document.createElement("details"); det.className = "hint";
+      det.innerHTML = "<summary>Besoin d'un indice ?</summary><p></p>";
+      det.querySelector("p").textContent = item.hint; head.appendChild(det);
+    }
+    lab.appendChild(head);
+
+    const box = document.createElement("div"); box.className = "editor-box";
+    const ta = document.createElement("textarea"); ta.className = "editor"; ta.id = "code-" + item.id;
+    ta.spellcheck = false; ta.setAttribute("autocapitalize", "off"); ta.setAttribute("autocomplete", "off"); ta.setAttribute("autocorrect", "off");
+    ta.setAttribute("aria-label", "Code de " + item.title);
+    if (isExercise) {
+      ta.placeholder = "# Écris ton code ici";
+      ta.value = lsGet(item.id) || "";
+    } else {
+      ta.value = item.code;
+      ta.style.minHeight = (item.code.split("\n").length * 1.6 + 2) + "em";
+    }
+    box.appendChild(ta); lab.appendChild(box);
+    setupEditor(ta);
+
+    const bar = document.createElement("div"); bar.className = "bar";
+    const run = document.createElement("button"); run.className = "run"; run.textContent = "▶ Lancer";
+    bar.appendChild(run);
+    if (!isExercise) {
+      const reset = document.createElement("button"); reset.textContent = "Remettre l'exemple";
+      reset.addEventListener("click", () => { ta.value = item.code; });
+      bar.appendChild(reset);
+    }
+    const st = document.createElement("span"); st.className = "status"; bar.appendChild(st);
+    lab.appendChild(bar);
+
+    const cons = document.createElement("div"); cons.className = "console"; cons.setAttribute("aria-live", "polite");
+    cons.innerHTML = '<span class="placeholder">Le résultat de ton programme s\'affichera ici.</span>';
+    lab.appendChild(cons);
+
+    if (isExercise) {
+      editors[item.id] = ta; statuses[item.id] = st;
+      let t = null;
+      ta.addEventListener("input", () => {
+        lsSet(item.id, ta.value);
+        st.textContent = "Modifié"; st.className = "status";
+        clearTimeout(t); t = setTimeout(() => saveRemote(item.id), 2500);
+      });
+      makeRunner(ta, cons, run, () => saveRemote(item.id));
+    } else {
+      makeRunner(ta, cons, run);
+    }
+    return lab;
+  }
+
+  const exWrap = document.getElementById("examples");
+  EXAMPLES.forEach(e => exWrap.appendChild(buildLab(e, false)));
+  exWrap.style.display = "flex"; exWrap.style.flexDirection = "column"; exWrap.style.gap = "16px";
+  const exoWrap = document.getElementById("exercises");
+  EXERCISES.forEach(e => exoWrap.appendChild(buildLab(e, true)));
+  exoWrap.style.display = "flex"; exoWrap.style.flexDirection = "column"; exoWrap.style.gap = "20px";
+
+  // ---------- Simulateur range ----------
+  const rvS = document.getElementById("rv-start"), rvE = document.getElementById("rv-end"), rvP = document.getElementById("rv-step");
+  const rvC = document.getElementById("rv-cells"), rvM = document.getElementById("rv-msg");
+  function drawRange() {
+    const a = parseInt(rvS.value, 10), b = parseInt(rvE.value, 10), p = parseInt(rvP.value, 10);
+    rvC.textContent = "";
+    if ([a, b, p].some(Number.isNaN)) { rvM.textContent = "Mets des nombres entiers."; return; }
+    if (p === 0) { rvM.textContent = "Le pas ne peut pas valoir 0 : Python refuse (ValueError)."; return; }
+    const vals = [];
+    for (let i = a; p > 0 ? i < b : i > b; i += p) { vals.push(i); if (vals.length > 60) break; }
+    vals.slice(0, 60).forEach(v => { const c = document.createElement("span"); c.className = "cell"; c.textContent = v; rvC.appendChild(c); });
+    if (vals.length === 0) rvM.textContent = "Aucun nombre : la boucle ne ferait aucun tour.";
+    else if (vals.length > 60) rvM.textContent = "Beaucoup de nombres… seuls les 60 premiers sont affichés.";
+    else rvM.textContent = "La boucle ferait " + vals.length + " tour" + (vals.length > 1 ? "s" : "") + ". Le nombre " + b + " n'est pas inclus.";
+  }
+  [rvS, rvE, rvP].forEach(el => el.addEventListener("input", drawRange));
+  drawRange();
+
+  // ---------- Copier ----------
+  function allCode() {
+    return EXERCISES.map(e => "# ===== " + e.title + " =====\n" + (editors[e.id].value || "# (pas encore fait)")).join("\n\n");
+  }
+  document.getElementById("copy-all").addEventListener("click", () => {
+    const txt = allCode(); const msg = document.getElementById("copy-msg");
+    const fb = document.getElementById("copy-fallback");
+    const showFallback = () => { fb.hidden = false; fb.value = txt; fb.focus(); fb.select(); msg.textContent = "Sélectionne le texte ci-dessous et copie-le."; };
+    try {
+      navigator.clipboard.writeText(txt).then(() => { msg.textContent = "Copié ✓ Colle-le dans la conversation."; }, showFallback);
+    } catch (e) { showFallback(); }
+  });
+
+  // ---------- Connexion db ----------
+  let dbTimer = setTimeout(() => { if (!db) saveInfo.textContent = "Ton code est gardé sur cet appareil. Si Claude ne le voit pas, utilise « Copier tout mon code » et colle-le dans la conversation."; }, 10000);
+  (async () => {
+    try {
+      const c = window.claude && window.claude.use ? await window.claude.use("db") : null;
+      clearTimeout(dbTimer);
+      if (!c) { saveInfo.textContent = "Ton code est gardé sur cet appareil. Pour que Claude le voie, utilise « Copier tout mon code » et colle-le dans la conversation."; return; }
+      db = c;
+      saveInfo.textContent = "✓ Sauvegarde active : Claude pourra lire tes réponses.";
+      // Récupère les réponses déjà enregistrées (autre appareil, Mac ↔ iPad)
+      for (const e of EXERCISES) {
+        try {
+          const snap = await db.doc("reponses/" + e.id).get();
+          if (snap.exists) {
+            const code = snap.data().code || "";
+            lastSaved[e.id] = code;
+            if (!editors[e.id].value && code) { editors[e.id].value = code; lsSet(e.id, code); }
+            if (editors[e.id].value === code && code) { statuses[e.id].textContent = "✓ Enregistré pour Claude"; statuses[e.id].className = "status saved"; }
+          }
+        } catch (err) {}
+      }
+    } catch (err) {
+      clearTimeout(dbTimer);
+      saveInfo.textContent = "Ton code est gardé sur cet appareil. Pour que Claude le voie, utilise « Copier tout mon code ».";
+    }
+  })();
+})();
+</script>
