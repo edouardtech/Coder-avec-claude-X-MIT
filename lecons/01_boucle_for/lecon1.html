@@ -464,7 +464,8 @@ footer { color: var(--muted); font-size: 0.85rem; }
           const e = document.createElement("span"); e.className = "err";
           e.textContent = (consoleEl.textContent ? "\n" : "") + "Erreur : " + msg;
           consoleEl.appendChild(e);
-          const tip = frenchTip(msg);
+          const capKw = ta.value.match(/^\s*(For|If|Elif|Else|While|Print|Range|Input)\b/m);
+          const tip = capKw ? "Ton clavier a mis une majuscule à « " + capKw[1] + " ». En Python, il faut l'écrire en minuscules : « " + capKw[1].toLowerCase() + " »." : frenchTip(msg);
           if (tip) { const t = document.createElement("span"); t.className = "tip"; t.textContent = "💡 " + tip + (lineMatch ? " (regarde la ligne " + lineMatch[1] + ")" : ""); consoleEl.appendChild(t); }
         })
         .finally(() => {
