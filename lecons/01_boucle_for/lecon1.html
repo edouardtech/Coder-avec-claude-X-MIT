@@ -357,7 +357,25 @@ footer { color: var(--muted); font-size: 0.85rem; }
   }
 
   // ---------- Éditeur ----------
+  // Le Mac et l'iPad remplacent " par “ ” et ' par ’ : Python ne les comprend pas.
+  function cleanCode(s) {
+    return s.replace(/[“”„‟«»″]/g, '"')
+            .replace(/[‘’‚‛′]/g, "'")
+            .replace(/[    ]/g, " ")
+            .replace(/[−–—]/g, "-")
+            .replace(/…/g, "...")
+            .replace(/\t/g, "    ")
+            .replace(/\r\n?/g, "\n");
+  }
   function setupEditor(ta) {
+    ta.addEventListener("input", () => {
+      const c = cleanCode(ta.value);
+      if (c !== ta.value) {
+        const pos = ta.selectionStart - (ta.value.length - c.length);
+        ta.value = c;
+        ta.setSelectionRange(Math.max(0, pos), Math.max(0, pos));
+      }
+    });
     ta.addEventListener("keydown", (e) => {
       if (e.key === "Tab" && !e.shiftKey) {
         e.preventDefault();
@@ -381,6 +399,9 @@ footer { color: var(--muted); font-size: 0.85rem; }
       return "Problème d'indentation : vérifie que les lignes dans la boucle sont décalées de 4 espaces, et que les autres ne le sont pas.";
     if (/SyntaxError/i.test(msg))
       return "Erreur de syntaxe : as-tu oublié les deux-points « : » à la fin du for ou du if ? Une parenthèse ou un guillemet qui n'est pas fermé ?";
+    const cap = msg.match(/name '(For|Print|In|If|Range|Input|Int|Else|Elif|While)' is not defined/);
+    if (cap)
+      return "Ton clavier a mis une majuscule à « " + cap[1] + " ». En Python, il faut tout en minuscules : « " + cap[1].toLowerCase() + " ».";
     if (/NameError/i.test(msg))
       return "Python ne connaît pas un nom. Vérifie l'orthographe (majuscules comprises) et que la variable est créée avant d'être utilisée.";
     if (/TypeError/i.test(msg) && /str/i.test(msg))
@@ -432,7 +453,7 @@ footer { color: var(--muted); font-size: 0.85rem; }
         execLimit: 8000,
       });
       onRun && onRun();
-      Sk.misceval.asyncToPromise(() => Sk.importMainWithBody("<stdin>", false, ta.value, true))
+      Sk.misceval.asyncToPromise(() => Sk.importMainWithBody("<stdin>", false, (ta.value = cleanCode(ta.value)), true))
         .then(() => {
           if (!consoleEl.textContent) consoleEl.innerHTML = '<span class="placeholder">(Ton programme n\'a rien affiché.)</span>';
           const d = document.createElement("span"); d.className = "done"; d.textContent = (consoleEl.textContent.endsWith("\n") ? "" : "\n") + "— fin du programme —"; consoleEl.appendChild(d);
