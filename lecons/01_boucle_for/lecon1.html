@@ -118,7 +118,19 @@ td code { white-space: nowrap; }
 .expected::before { content: "Résultat attendu :"; display: block; font-family: var(--font-body); font-size: 0.75rem; color: var(--muted); margin-bottom: 2px; }
 details.hint { font-size: 0.95rem; }
 details.hint summary { cursor: pointer; color: var(--accent); font-weight: 700; }
-details.hint p { margin-top: 6px; color: var(--muted); }
+.hints { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.hints .hint-item { margin: 0; padding: 8px 12px; border-radius: 8px; background: var(--accent-soft); font-size: 0.95rem; }
+.hints .hint-item b { color: var(--accent); }
+button.check { background: var(--ok); border-color: var(--ok); color: #fff; }
+button.check:hover { filter: brightness(1.08); }
+.feedback { margin: 0 18px 16px; border-radius: 10px; padding: 12px 14px; font-size: 0.95rem; display: flex; flex-direction: column; gap: 6px; }
+.feedback.ok { background: var(--ok-soft); }
+.feedback.ko { background: var(--flame-soft); }
+.feedback .fb-title { font-weight: 700; }
+.feedback ul { margin: 0; padding-left: 20px; }
+.lab.done { border-color: var(--ok); }
+.badge-ok { font-size: 0.8rem; font-weight: 700; color: var(--ok); }
+.progress { font-weight: 700; padding: 10px 14px; border-radius: 10px; background: var(--paper); border: 1px solid var(--line); }
 
 .editor-box { padding: 10px 18px 0; }
 textarea.editor {
@@ -270,7 +282,8 @@ footer { color: var(--muted); font-size: 0.85rem; }
 <section id="exos">
   <div class="part-label">Partie 6 · à toi de jouer</div>
   <h2>Exercices</h2>
-  <p>Écris ton code dans le cadre sombre, puis appuie sur <b>▶ Lancer</b>. Ton code est enregistré automatiquement à chaque lancement. Si tu bloques, ouvre l'indice.</p>
+  <p>Écris ton code dans le cadre sombre, puis appuie sur <b>▶ Lancer</b>. Quand tu penses avoir trouvé, appuie sur <b>✔ Vérifier ma réponse</b> : la page teste ton programme et te dit si c'est juste, et sinon ce qui ne va pas. Si tu bloques, demande un indice (il y en a 3 par exercice, du plus vague au plus précis).</p>
+  <div class="progress" id="progress" aria-live="polite">Exercices réussis : 0 / 5</div>
   <p class="mini">Astuce : la touche Tab ajoute 4 espaces, et après une ligne qui finit par <code>:</code>, la touche Entrée décale la ligne suivante toute seule.</p>
   <div id="exercises"></div>
 </section>
@@ -306,23 +319,23 @@ footer { color: var(--muted); font-size: 0.85rem; }
     { id: "ex1", stars: "⭐", title: "1. Le compte à rebours de la fusée 🚀",
       text: "<p>Affiche les nombres de <b>10 à 1</b> (un par ligne), puis affiche <code>Décollage ! 🚀</code>.</p>",
       expected: "10\n9\n8\n...\n1\nDécollage ! 🚀",
-      hint: "Regarde la dernière ligne du tableau de range(). Comment compter à l'envers ? Et attention : la fin n'est jamais incluse, donc pour s'arrêter à 1, quelle fin faut-il mettre ?" },
+      hints: ["Pour compter à l'envers, range() a besoin de 3 nombres : range(début, fin, pas). Regarde la dernière ligne du tableau de la partie 3.", "Le début, c'est 10. Le pas, c'est -1 (on enlève 1 à chaque tour). Pour la fin : elle n'est jamais incluse. Pour t'arrêter à 1, quel nombre faut-il mettre juste après 1 en descendant ?", "Le message « Décollage ! 🚀 » ne doit s'afficher qu'une fois, après la boucle : ne décale pas cette ligne."] },
     { id: "ex2", stars: "⭐", title: "2. La table de multiplication",
       text: "<p>Demande un nombre avec <code>input()</code>, puis affiche sa table de multiplication de 1 à 10.</p>",
       expected: "Quel nombre ? 7\n7 x 1 = 7\n7 x 2 = 14\n...\n7 x 10 = 70",
-      hint: "input() donne du texte. Pour faire des calculs, transforme-le en nombre avec int(...). Ensuite, inspire-toi de l'exemple A." },
+      hints: ["Commence par demander le nombre : nombre = input(\"Quel nombre ? \"). Attention : input() donne du texte, pas un nombre !", "Mets int( ... ) autour de input(...) pour transformer le texte en nombre. Sinon, \"7\" * 3 donne \"777\" 😅", "Il faut une boucle qui va de 1 à 10 inclus. L'exemple A fait exactement ça pour la table de 3 : remplace le 3 par ta variable."] },
     { id: "ex3", stars: "⭐⭐", title: "3. Le carburant de la fusée ⛽",
       text: "<p>La fusée consomme 1 litre la 1re seconde, 2 litres la 2e, 3 litres la 3e, etc. Demande la durée du vol en secondes, puis affiche le carburant <b>total</b> consommé.</p>",
       expected: "Durée du vol ? 4\nCarburant consommé : 10 litres",
-      hint: "Pour 4 secondes : 1 + 2 + 3 + 4 = 10. C'est exactement la technique de l'accumulateur (exemple B). Pense à aller jusqu'à la durée incluse." },
+      hints: ["Utilise la technique de l'accumulateur (exemple B) : une variable total qui vaut 0, créée avant la boucle.", "À la seconde i, la fusée consomme i litres. Donc à chaque tour, ajoute i au total.", "La boucle va de 1 jusqu'à la durée incluse. Comme la fin de range() n'est jamais incluse, il faut mettre durée + 1. Le print du total se fait après la boucle, sans décalage."] },
     { id: "ex4", stars: "⭐⭐⭐", title: "4. Compter les voyelles 🔤",
       text: "<p>Demande un mot, puis affiche combien il contient de voyelles (a, e, i, o, u, y).</p><p>Teste aussi avec « polytechnique » et compte à la main pour vérifier.</p>",
       expected: "Ton mot ? fusee\nIl y a 3 voyelles",
-      hint: "Parcours le mot lettre par lettre (exemple C). Pour savoir si une lettre est une voyelle : if lettre in \"aeiouy\":. Il te faut aussi un compteur qui commence à 0." },
+      hints: ["Parcours le mot lettre par lettre avec for lettre in mot: (comme dans l'exemple C).", "Crée un compteur qui vaut 0 avant la boucle. Dans la boucle, teste si la lettre est une voyelle avec if lettre in \"aeiouy\":", "Si c'est une voyelle, ajoute 1 au compteur (cette ligne est décalée 2 fois : dans le for et dans le if). Le print final est après la boucle, pas décalé du tout."] },
     { id: "ex5", stars: "🔥 Défi", defi: true, title: "5. La pyramide de la fusée",
       text: "<p>Demande un nombre <code>n</code>, puis dessine une pyramide <b>centrée</b> de <code>n</code> étages avec des étoiles.</p><p><b>Bonus 🔥🔥</b> : ajoute en dessous le corps de la fusée (par exemple 2 lignes <code>|||</code>) bien centré.</p>",
       expected: "Combien d'étages ? 4\n   *\n  ***\n *****\n*******",
-      hint: "En Python, \"*\" * 3 donne \"***\" et \" \" * 2 donne \"  \". Fais un tableau sur papier pour n = 4 : à l'étage 1, combien d'espaces et d'étoiles ? À l'étage 2 ? Trouve la règle." },
+      hints: ["Fais un tableau sur papier pour n = 4. Étage 1 : 3 espaces et 1 étoile. Étage 2 : 2 espaces et 3 étoiles. Et les étages 3 et 4 ?", "Fais une boucle avec i qui va de 1 à n. Les espaces : il y en a un de moins à chaque étage, donc n - i. Les étoiles : 1, 3, 5, 7… Quel calcul avec i donne ces nombres ?", "Une ligne s'affiche avec print(\" \" * espaces + \"*\" * etoiles). Pour les étoiles, essaie de multiplier i par 2, puis vérifie avec ton tableau ce qu'il faut enlever."] },
   ];
 
   // ---------- Stockage ----------
@@ -413,6 +426,164 @@ footer { color: var(--muted); font-size: 0.85rem; }
     return "";
   }
 
+
+  // ---------- Vérification automatique ----------
+  const num = (t) => (t.match(/-?\d+/g) || []).map(Number);
+  const linesOf = (out) => out.replace(/\s+$/, "").split("\n").map(l => l.replace(/\s+$/, ""));
+  const plain = (t) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  const numberLines = (out) => linesOf(out).filter(l => /\d/.test(l));
+  const lastNum = (out) => { const n = num(out); return n.length ? n[n.length - 1] : null; };
+
+  const CHECKS = {
+    ex1: { tests: [[]], judge(out) {
+      const lines = linesOf(out).map(l => l.trim()).filter(l => l);
+      const nums = lines.filter(l => /^-?\d+$/.test(l)).map(Number);
+      const want = [10,9,8,7,6,5,4,3,2,1];
+      if (!nums.length) return "Je ne vois pas les nombres de 10 à 1, un par ligne.";
+      if (nums.join() !== want.join()) {
+        if (nums[0] === 9) return "Ton compte à rebours commence à 9 au lieu de 10. Vérifie le début de ton range().";
+        if (nums[0] !== 10) return "Ton compte à rebours doit commencer à 10, et le tien commence à " + nums[0] + ".";
+        if (nums[nums.length - 1] === 0) return "Ton compte à rebours va jusqu'à 0. Il doit s'arrêter à 1 : vérifie la fin de ton range().";
+        if (nums[nums.length - 1] === 2) return "Ton compte à rebours s'arrête à 2. Il doit aller jusqu'à 1 : la fin de range() n'est jamais incluse !";
+        return "J'attendais 10, 9, 8 … 1 et ton programme affiche : " + nums.join(", ") + ".";
+      }
+      const deco = lines.filter(l => plain(l).includes("decollage"));
+      if (!deco.length) return "Les nombres sont parfaits 👏 Il manque juste le message « Décollage ! 🚀 » à la fin.";
+      if (deco.length > 1) return "« Décollage » s'affiche " + deco.length + " fois. Il doit s'afficher une seule fois : ce print est sûrement dans la boucle (décalé). Enlève le décalage.";
+      if (!plain(lines[lines.length - 1]).includes("decollage")) return "« Décollage » doit s'afficher à la fin, après le 1.";
+      return null;
+    }},
+    ex2: { tests: [["7"], ["3"]], judge(out, inp) {
+      const n = Number(inp[0]);
+      if (/777|333/.test(out)) return "Je vois « 777 » : ton nombre est resté du texte. Utilise int( input(...) ) pour le transformer en nombre.";
+      const rows = numberLines(out).map(num).filter(a => a.length >= 3);
+      if (!rows.length) return "Avec " + n + ", je ne vois pas de lignes comme « " + n + " x 1 = " + n + " ».";
+      if (rows[0][1] === 0) return "Ta table commence à « " + n + " x 0 ». Elle doit commencer à « " + n + " x 1 ».";
+      for (let i = 1; i <= 10; i++) {
+        const r = rows[i - 1];
+        if (!r) return "Avec " + n + ", ta table s'arrête à « " + n + " x " + (i - 1) + " ». Il faut aller jusqu'à « " + n + " x 10 » : vérifie la fin de ton range().";
+        const [a, b, c] = r.slice(-3);
+        if (a !== n || b !== i || c !== n * i) return "Avec " + n + ", la ligne n°" + i + " n'est pas juste. J'attendais « " + n + " x " + i + " = " + (n * i) + " » et j'ai lu les nombres " + r.join(", ") + ".";
+      }
+      if (rows.length > 10) return "Ta table a " + rows.length + " lignes au lieu de 10. Elle doit s'arrêter à « " + n + " x 10 ».";
+      return null;
+    }},
+    ex3: { tests: [["4"], ["1"], ["10"]], judge(out, inp) {
+      const d = Number(inp[0]); const want = d * (d + 1) / 2;
+      const got = lastNum(out);
+      if (got === null) return "Avec " + d + " secondes, ton programme n'affiche aucun nombre.";
+      if (numberLines(out).length > 1) return "Ton programme affiche plusieurs résultats au lieu d'un seul. Le print du total doit être après la boucle, sans décalage.";
+      if (got === want) return null;
+      if (got === want - d) return "Avec " + d + " secondes, tu trouves " + got + " au lieu de " + want + " : ta boucle s'arrête une seconde trop tôt. La fin de range() n'est jamais incluse…";
+      if (got === d) return "Avec " + d + " secondes, tu affiches " + got + " : on dirait que tu remplaces le total au lieu de lui ajouter i à chaque tour.";
+      return "Avec " + d + " secondes, il fallait " + want + " litres et ton programme affiche " + got + ".";
+    }},
+    ex4: { tests: [["fusee"], ["polytechnique"], ["python"]], judge(out, inp) {
+      const w = inp[0]; const want = [...w].filter(c => "aeiouy".includes(c)).length;
+      const got = lastNum(out);
+      if (got === null) return "Avec le mot « " + w + " », ton programme n'affiche aucun nombre.";
+      if (numberLines(out).length > 1) return "Ton programme affiche plusieurs nombres au lieu d'un seul. Le print final doit être après la boucle, sans décalage.";
+      if (got === want) return null;
+      if (got === 0) return "Avec « " + w + " », ton compteur reste à 0. Est-ce que tu ajoutes bien 1 quand la lettre est une voyelle ?";
+      if (got === w.length) return "Avec « " + w + " », tu trouves " + got + " : c'est le nombre de lettres. Tu dois compter seulement les voyelles (le +1 doit être dans le if).";
+      return "Avec « " + w + " », il y a " + want + " voyelles et ton programme en compte " + got + ".";
+    }},
+    ex5: { tests: [["4"], ["1"], ["3"]], judge(out, inp) {
+      const n = Number(inp[0]);
+      const lines = linesOf(out);
+      const start = lines.findIndex(l => l.includes("*"));
+      if (start < 0) return "Avec n = " + n + ", je ne vois aucune étoile.";
+      const rows = []; for (let i = start; i < lines.length && /^ *\*+$/.test(lines[i]); i++) rows.push(lines[i]);
+      for (let i = 1; i <= n; i++) {
+        const r = rows[i - 1];
+        if (r === undefined) return "Avec n = " + n + ", ta pyramide a " + rows.length + " étage(s) au lieu de " + n + ".";
+        const sp = r.length - r.trimStart().length, st = r.trim().length;
+        if (st !== 2 * i - 1) return "Avec n = " + n + ", à l'étage " + i + " il faut " + (2 * i - 1) + " étoile(s), et tu en as " + st + ".";
+        if (sp !== n - i) return sp === 0 && n - i > 0
+          ? "Les étoiles sont justes 👏 mais ta pyramide n'est pas centrée : il manque les espaces au début des lignes."
+          : "Avec n = " + n + ", à l'étage " + i + " il faut " + (n - i) + " espace(s) avant les étoiles, et tu en as " + sp + ".";
+      }
+      if (rows.length > n) return "Avec n = " + n + ", ta pyramide a " + rows.length + " étages au lieu de " + n + ".";
+      return null;
+    }},
+  };
+
+  function runSilent(code, inputs) {
+    const queue = inputs.slice();
+    let out = "";
+    Sk.configure({
+      __future__: Sk.python3,
+      output: (t) => { out += t; },
+      read: (f) => {
+        if (Sk.builtinFiles === undefined || Sk.builtinFiles.files[f] === undefined) throw "Fichier introuvable : " + f;
+        return Sk.builtinFiles.files[f];
+      },
+      inputfunTakesPrompt: true,
+      inputfun: () => queue.length ? Promise.resolve(queue.shift()) : Promise.reject(new Error("TROP_INPUT")),
+      execLimit: 4000,
+    });
+    return Sk.misceval.asyncToPromise(() => Sk.importMainWithBody("<stdin>", false, code, true))
+      .then(() => ({ out }), (err) => ({ out, err: err && err.toString ? err.toString() : String(err) }));
+  }
+
+  const solved = {};
+  function updateProgress() {
+    const n = EXERCISES.filter(e => solved[e.id]).length;
+    const el = document.getElementById("progress");
+    if (el) el.textContent = "Exercices réussis : " + n + " / " + EXERCISES.length + (n === EXERCISES.length ? " 🚀 Mission accomplie !" : "");
+  }
+  function markSolved(id, yes) {
+    solved[id] = yes;
+    const lab = document.getElementById("lab-" + id);
+    if (lab) { lab.classList.toggle("done", yes); lab.querySelector(".badge-ok").hidden = !yes; }
+    updateProgress();
+  }
+
+  async function checkExercise(item, ta, fb) {
+    if (running) return;
+    if (typeof Sk === "undefined") { fb.hidden = false; fb.className = "feedback ko"; fb.textContent = "Le moteur Python ne s'est pas chargé. Recharge la page."; return; }
+    ta.value = cleanCode(ta.value);
+    if (!ta.value.trim()) { fb.hidden = false; fb.className = "feedback ko"; fb.textContent = "Écris d'abord ton code dans le cadre sombre 🙂"; return; }
+    running = true;
+    document.querySelectorAll("button.run, button.check").forEach(b => b.disabled = true);
+    fb.hidden = false; fb.className = "feedback"; fb.textContent = "Je vérifie ton programme…";
+    const chk = CHECKS[item.id];
+    let problem = null, passed = 0;
+    for (const inp of chk.tests) {
+      const r = await runSilent(ta.value, inp);
+      if (r.err) {
+        if (/TROP_INPUT/.test(r.err)) problem = "Ton programme pose plus de questions (input) que prévu. " + (inp.length ? "Il doit en poser une seule." : "Cet exercice n'a pas besoin d'input().");
+        else if (/TimeLimit|time limit/i.test(r.err)) problem = "Ton programme tourne sans s'arrêter (ou beaucoup trop longtemps). Vérifie ta boucle.";
+        else problem = "Ton programme a une erreur : « " + r.err + " ». Clique sur ▶ Lancer pour voir l'explication.";
+        break;
+      }
+      const msg = chk.judge(r.out, inp);
+      if (msg) { problem = msg; break; }
+      passed++;
+    }
+    running = false;
+    document.querySelectorAll("button.run, button.check").forEach(b => b.disabled = false);
+    fb.textContent = "";
+    const title = document.createElement("div"); title.className = "fb-title";
+    const detail = document.createElement("div");
+    if (!problem) {
+      fb.className = "feedback ok";
+      title.textContent = "✅ Bravo, c'est juste !";
+      detail.textContent = chk.tests.length > 1 ? "J'ai testé ton programme avec " + chk.tests.length + " réponses différentes : tout est bon." : "Ton programme affiche exactement ce qu'il faut.";
+      markSolved(item.id, true);
+    } else {
+      fb.className = "feedback ko";
+      title.textContent = "❌ Pas encore… mais tu y es presque !";
+      detail.textContent = problem + (passed ? " (" + passed + " test" + (passed > 1 ? "s" : "") + " réussi" + (passed > 1 ? "s" : "") + " avant celui-ci.)" : "");
+      markSolved(item.id, false);
+    }
+    fb.append(title, detail);
+    lsSet(item.id + "-ok", problem ? "" : "1");
+    if (db) {
+      try { await db.doc("reponses/" + item.id).set({ exercice: item.id, code: ta.value, reussi: !problem, verification: problem || "OK", misAJour: new Date().toISOString() }); lastSaved[item.id] = ta.value; statuses[item.id].textContent = "✓ Enregistré pour Claude"; statuses[item.id].className = "status saved"; } catch (e) {}
+    }
+  }
+
   let running = false;
   function makeRunner(ta, consoleEl, runBtn, onRun) {
     runBtn.addEventListener("click", () => {
@@ -422,7 +593,7 @@ footer { color: var(--muted); font-size: 0.85rem; }
         return;
       }
       running = true;
-      document.querySelectorAll("button.run").forEach(b => b.disabled = true);
+      document.querySelectorAll("button.run, button.check").forEach(b => b.disabled = true);
       consoleEl.textContent = "";
       const outNode = () => { const s = document.createElement("span"); consoleEl.appendChild(s); return s; };
       Sk.configure({
@@ -470,7 +641,7 @@ footer { color: var(--muted); font-size: 0.85rem; }
         })
         .finally(() => {
           running = false;
-          document.querySelectorAll("button.run").forEach(b => b.disabled = false);
+          document.querySelectorAll("button.run, button.check").forEach(b => b.disabled = false);
         });
     });
   }
@@ -481,13 +652,24 @@ footer { color: var(--muted); font-size: 0.85rem; }
     const head = document.createElement("div"); head.className = "lab-head";
     head.innerHTML = '<div class="title-row"><h3></h3>' + (item.stars ? '<span class="stars"></span>' : "") + "</div>";
     head.querySelector("h3").textContent = item.title;
+    if (isExercise) { lab.id = "lab-" + item.id; const bd = document.createElement("span"); bd.className = "badge-ok"; bd.textContent = "✅ Réussi"; bd.hidden = true; head.querySelector(".title-row").appendChild(bd); }
     if (item.stars) head.querySelector(".stars").textContent = item.stars;
     if (isExercise) {
       const body = document.createElement("div"); body.innerHTML = item.text; head.appendChild(body);
       const ex = document.createElement("pre"); ex.className = "expected"; ex.textContent = item.expected; head.appendChild(ex);
-      const det = document.createElement("details"); det.className = "hint";
-      det.innerHTML = "<summary>Besoin d'un indice ?</summary><p></p>";
-      det.querySelector("p").textContent = item.hint; head.appendChild(det);
+      const hs = document.createElement("div"); hs.className = "hints";
+      const hb = document.createElement("button"); hb.type = "button";
+      let shown = 0;
+      const label = () => { hb.textContent = "💡 Indice " + (shown + 1) + " sur " + item.hints.length; };
+      label();
+      hb.addEventListener("click", () => {
+        const p = document.createElement("p"); p.className = "hint-item";
+        const b = document.createElement("b"); b.textContent = "Indice " + (shown + 1) + " : ";
+        p.append(b, document.createTextNode(item.hints[shown]));
+        hs.insertBefore(p, hb); shown++;
+        if (shown >= item.hints.length) hb.hidden = true; else label();
+      });
+      hs.appendChild(hb); head.appendChild(hs);
     }
     lab.appendChild(head);
 
@@ -508,6 +690,8 @@ footer { color: var(--muted); font-size: 0.85rem; }
     const bar = document.createElement("div"); bar.className = "bar";
     const run = document.createElement("button"); run.className = "run"; run.textContent = "▶ Lancer";
     bar.appendChild(run);
+    let checkBtn = null;
+    if (isExercise) { checkBtn = document.createElement("button"); checkBtn.className = "check"; checkBtn.textContent = "✔ Vérifier ma réponse"; bar.appendChild(checkBtn); }
     if (!isExercise) {
       const reset = document.createElement("button"); reset.textContent = "Remettre l'exemple";
       reset.addEventListener("click", () => { ta.value = item.code; });
@@ -529,6 +713,10 @@ footer { color: var(--muted); font-size: 0.85rem; }
         clearTimeout(t); t = setTimeout(() => saveRemote(item.id), 2500);
       });
       makeRunner(ta, cons, run, () => saveRemote(item.id));
+      const fb = document.createElement("div"); fb.className = "feedback"; fb.hidden = true; fb.setAttribute("aria-live", "polite");
+      lab.insertBefore(fb, cons);
+      checkBtn.addEventListener("click", () => checkExercise(item, ta, fb));
+      if (lsGet(item.id + "-ok") === "1") setTimeout(() => markSolved(item.id, true), 0);
     } else {
       makeRunner(ta, cons, run);
     }
@@ -562,7 +750,7 @@ footer { color: var(--muted); font-size: 0.85rem; }
 
   // ---------- Copier ----------
   function allCode() {
-    return EXERCISES.map(e => "# ===== " + e.title + " =====\n" + (editors[e.id].value || "# (pas encore fait)")).join("\n\n");
+    return EXERCISES.map(e => "# ===== " + e.title + (solved[e.id] ? " (✅ vérifié)" : "") + " =====\n" + (editors[e.id].value || "# (pas encore fait)")).join("\n\n");
   }
   document.getElementById("copy-all").addEventListener("click", () => {
     const txt = allCode(); const msg = document.getElementById("copy-msg");
@@ -590,6 +778,7 @@ footer { color: var(--muted); font-size: 0.85rem; }
             const code = snap.data().code || "";
             lastSaved[e.id] = code;
             if (!editors[e.id].value && code) { editors[e.id].value = code; lsSet(e.id, code); }
+            if (snap.data().reussi === true && editors[e.id].value === code) markSolved(e.id, true);
             if (editors[e.id].value === code && code) { statuses[e.id].textContent = "✓ Enregistré pour Claude"; statuses[e.id].className = "status saved"; }
           }
         } catch (err) {}
