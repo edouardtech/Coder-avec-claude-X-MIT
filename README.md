@@ -15,7 +15,7 @@ Entrer à **Polytechnique (l'X)** et/ou au **MIT**.
 ## 🗺️ Mon parcours
 
 ### Étape 1 — Python solide
-- [ ] Leçon 1 : la boucle `for` → [`lecons/01_boucle_for`](lecons/01_boucle_for) · [version interactive 🚀](https://claude.ai/artifact/9CxCHdoyqGXirhHzAaXYgP)
+- [ ] ⏳ Leçon 1 (en cours, 2/5) : la boucle `for` → [`lecons/01_boucle_for`](lecons/01_boucle_for) · [version interactive 🚀](https://claude.ai/artifact/9CxCHdoyqGXirhHzAaXYgP)
 - [ ] Leçon 2 : la boucle `while`
 - [ ] Leçon 3 : les listes
 - [ ] Leçon 4 : les chaînes de caractères
