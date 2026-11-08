@@ -15,8 +15,8 @@ Entrer à **Polytechnique (l'X)** et/ou au **MIT**.
 ## 🗺️ Mon parcours
 
 ### Étape 1 — Python solide
-- [ ] ⏳ Leçon 1 (en cours, 2/5) : la boucle `for` → [`lecons/01_boucle_for`](lecons/01_boucle_for) · [version interactive 🚀](https://claude.ai/artifact/9CxCHdoyqGXirhHzAaXYgP)
-- [ ] Leçon 2 : la boucle `while`
+- [ ] ⏸️ Leçon 1 (en pause, 2/5, on y reviendra) : la boucle `for` → [`lecons/01_boucle_for`](lecons/01_boucle_for) · [version interactive 🚀](https://claude.ai/artifact/9CxCHdoyqGXirhHzAaXYgP)
+- [ ] ⏳ Leçon 2 (en cours) : la boucle `while` → [`lecons/02_boucle_while`](lecons/02_boucle_while) · [version interactive 🚀](https://claude.ai/artifact/PgrerysZrprz6hQE295uaT)
 - [ ] Leçon 3 : les listes
 - [ ] Leçon 4 : les chaînes de caractères
 - [ ] Leçon 5 : les fonctions
@@ -24,6 +24,9 @@ Entrer à **Polytechnique (l'X)** et/ou au **MIT**.
 - [ ] Leçon 7 : recherche et tri
 - [ ] Leçon 8 : la récursivité
 - [ ] Projet 1 : mon premier jeu 🎮
+
+### 🖼️ Plus tard : travailler avec des images
+- [ ] Ouvrir, modifier et créer des images en Python (quand les bases seront solides : boucles, listes, fonctions)
 
 ### Étape 2 — Algorithmique (Prologin, olympiades)
 - [ ] À venir

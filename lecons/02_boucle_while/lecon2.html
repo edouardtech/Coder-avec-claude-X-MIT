@@ -1,0 +1,977 @@
+<title>Leçon 2 · La boucle while</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout : un carnet de mission spatiale, une colonne de lecture,
+   chaque exercice est une "étape de mission" avec son propre éditeur. */
+:root {
+  --bg: #f2f5fa;
+  --paper: #ffffff;
+  --ink: #15213a;
+  --muted: #5a6680;
+  --line: #d9e0ec;
+  --accent: #2f5bd3;
+  --accent-soft: #e3eafc;
+  --flame: #d9601c;
+  --flame-soft: #fde9dc;
+  --ok: #18804a;
+  --ok-soft: #dcf3e6;
+  --err: #b4232f;
+  --err-soft: #fbe3e5;
+  --code-bg: #101a2e;
+  --code-ink: #e5ecfa;
+  --code-kw: #ff9e64;
+  --code-fn: #7dcfff;
+  --code-str: #a6e3a1;
+  --code-num: #f9d36b;
+  --code-com: #8090b0;
+  --font-display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c1322; --paper: #131d33; --ink: #e8eefb; --muted: #9eabc6; --line: #26324d;
+    --accent: #7ea2ff; --accent-soft: #1d2a4d; --flame: #ff8a4c; --flame-soft: #3a2218;
+    --ok: #5fd394; --ok-soft: #143326; --err: #ff7a85; --err-soft: #3a1820;
+    --code-bg: #0a1020; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c1322; --paper: #131d33; --ink: #e8eefb; --muted: #9eabc6; --line: #26324d;
+  --accent: #7ea2ff; --accent-soft: #1d2a4d; --flame: #ff8a4c; --flame-soft: #3a2218;
+  --ok: #5fd394; --ok-soft: #143326; --err: #ff7a85; --err-soft: #3a1820;
+  --code-bg: #0a1020; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 17px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 64px;
+}
+.wrap { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.1rem, 6vw, 3.2rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 800; }
+h3 { font-size: 1.2rem; font-weight: 600; }
+p { margin: 0; }
+code { font-family: var(--font-mono); font-size: 0.9em; background: var(--accent-soft); color: var(--ink); padding: 1px 6px; border-radius: 5px; }
+a { color: var(--accent); }
+
+/* Bandeau d'ouverture */
+.hero { padding-top: 40px; display: flex; flex-direction: column; gap: 14px; }
+.eyebrow { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+.hero p.lead { font-size: 1.15rem; color: var(--muted); max-width: 60ch; }
+.countdown { font-family: var(--font-mono); font-size: 0.95rem; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; color: var(--muted); }
+.countdown span { display: inline-grid; place-items: center; min-width: 2.1em; height: 2.1em; border-radius: 6px; background: var(--paper); border: 1px solid var(--line); color: var(--ink); }
+.countdown span.go { background: var(--flame); border-color: var(--flame); color: #fff; padding: 0 10px; font-weight: 600; }
+
+/* Sommaire */
+.toc { display: flex; flex-wrap: wrap; gap: 8px; }
+.toc a { text-decoration: none; font-size: 0.92rem; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); }
+.toc a:hover, .toc a:focus-visible { border-color: var(--accent); color: var(--accent); }
+
+section { display: flex; flex-direction: column; gap: 14px; }
+.part-label { font-family: var(--font-mono); font-size: 0.78rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+
+/* Encadrés */
+.note { border-radius: 10px; padding: 14px 16px; background: var(--accent-soft); display: flex; gap: 12px; }
+.note.warn { background: var(--flame-soft); }
+.note > div { min-width: 0; }
+.note b { font-weight: 700; }
+.note .ico { font-size: 1.3rem; line-height: 1.3; }
+
+/* Code (lecture) */
+.code { margin: 0; background: var(--code-bg); color: var(--code-ink); font-family: var(--font-mono); font-size: 0.92rem; line-height: 1.6; padding: 14px 16px; border-radius: 10px; overflow-x: auto; white-space: pre; }
+.k { color: var(--code-kw); } .f { color: var(--code-fn); } .s { color: var(--code-str); } .n { color: var(--code-num); } .c { color: var(--code-com); font-style: italic; }
+.out { margin: 0; font-family: var(--font-mono); font-size: 0.88rem; background: var(--paper); border: 1px dashed var(--line); border-radius: 10px; padding: 10px 14px; white-space: pre; overflow-x: auto; color: var(--ink); }
+.out::before { content: "Ce qui s'affiche :"; display: block; font-family: var(--font-body); font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
+
+/* Tableau range */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+th { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 700; }
+td code { white-space: nowrap; }
+
+/* Visualiseur de range */
+.rangeviz { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.rangeviz .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; font-family: var(--font-mono); font-size: 0.95rem; }
+.rangeviz input { width: 4.2em; font-family: var(--font-mono); font-size: 1rem; padding: 4px 6px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
+.rangeviz .cells { display: flex; flex-wrap: wrap; gap: 6px; min-height: 36px; }
+.rangeviz .cell { min-width: 36px; height: 36px; padding: 0 6px; display: grid; place-items: center; border-radius: 8px; background: var(--accent-soft); color: var(--accent); font-family: var(--font-mono); font-weight: 600; }
+.tr-code { background: var(--code-bg); color: var(--code-ink); border-radius: 10px; padding: 10px 0; font-family: var(--font-mono); font-size: 0.92rem; overflow-x: auto; }
+.tr-code .tl { padding: 2px 14px; white-space: pre; border-left: 4px solid transparent; }
+.tr-code .tl.on { background: rgba(126,162,255,0.22); border-left-color: var(--code-num); }
+.tr-code .ln { color: var(--code-com); margin-right: 12px; }
+.tr-panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.tr-panel > div { min-width: 0; }
+.tr-var { font-family: var(--font-mono); font-size: 1.1rem; font-weight: 600; color: var(--accent); background: var(--accent-soft); border-radius: 8px; padding: 6px 10px; }
+.tr-out { margin: 0; min-height: 3em; font-family: var(--font-mono); font-size: 0.9rem; background: var(--bg); border-radius: 8px; padding: 6px 10px; white-space: pre-wrap; }
+.tr-msg { font-size: 1rem !important; color: var(--ink) !important; }
+.rangeviz .msg { font-size: 0.9rem; color: var(--muted); }
+
+/* Éditeurs */
+.lab { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+.lab-head { padding: 16px 18px 6px; display: flex; flex-direction: column; gap: 8px; }
+.lab-head .title-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
+.stars { font-size: 0.85rem; color: var(--muted); font-family: var(--font-mono); }
+.lab.defi { border-color: var(--flame); }
+.lab.defi .stars { color: var(--flame); font-weight: 600; }
+.lab-head ul { margin: 0; padding-left: 20px; }
+.expected { margin: 0; font-family: var(--font-mono); font-size: 0.85rem; background: var(--bg); border-radius: 8px; padding: 8px 12px; white-space: pre; overflow-x: auto; }
+.expected::before { content: "Résultat attendu :"; display: block; font-family: var(--font-body); font-size: 0.75rem; color: var(--muted); margin-bottom: 2px; }
+details.hint { font-size: 0.95rem; }
+details.hint summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+.hints { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.hints .hint-item { margin: 0; padding: 8px 12px; border-radius: 8px; background: var(--accent-soft); font-size: 0.95rem; }
+.hints .hint-item b { color: var(--accent); }
+button.check { background: var(--ok); border-color: var(--ok); color: #fff; }
+button.check:hover { filter: brightness(1.08); }
+.feedback { margin: 0 18px 16px; border-radius: 10px; padding: 12px 14px; font-size: 0.95rem; display: flex; flex-direction: column; gap: 6px; }
+.feedback.ok { background: var(--ok-soft); }
+.feedback.ko { background: var(--flame-soft); }
+.feedback .fb-title { font-weight: 700; }
+.feedback ul { margin: 0; padding-left: 20px; }
+.lab.done { border-color: var(--ok); }
+.badge-ok { font-size: 0.8rem; font-weight: 700; color: var(--ok); }
+.answer { margin: 0 18px 16px; border: 2px dashed var(--line); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+.answer .ask { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.answer ol { margin: 0; padding-left: 22px; }
+.answer .locked { color: var(--muted); font-size: 0.9rem; }
+.progress { font-weight: 700; padding: 10px 14px; border-radius: 10px; background: var(--paper); border: 1px solid var(--line); }
+
+.editor-box { padding: 10px 18px 0; }
+textarea.editor {
+  width: 100%; min-height: 150px; resize: vertical;
+  background: var(--code-bg); color: var(--code-ink); caret-color: var(--code-num);
+  font-family: var(--font-mono); font-size: 0.95rem; line-height: 1.6;
+  border: 2px solid transparent; border-radius: 10px; padding: 12px 14px;
+  tab-size: 4; white-space: pre; overflow-x: auto;
+}
+textarea.editor:focus { outline: none; border-color: var(--accent); }
+textarea.editor::placeholder { color: var(--code-com); }
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 18px; }
+button {
+  font-family: var(--font-body); font-size: 0.95rem; font-weight: 700;
+  padding: 8px 16px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--paper); color: var(--ink); cursor: pointer;
+}
+button:hover { border-color: var(--accent); }
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+button.run { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.run:hover { filter: brightness(1.08); }
+button:disabled { opacity: 0.55; cursor: default; }
+.status { font-size: 0.85rem; color: var(--muted); margin-left: auto; }
+.status.saved { color: var(--ok); }
+
+.console { margin: 0 18px 16px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; font-family: var(--font-mono); font-size: 0.9rem; white-space: pre-wrap; word-break: break-word; min-height: 2.6em; }
+.console .placeholder { color: var(--muted); font-family: var(--font-body); }
+.console .err { color: var(--err); }
+.console .tip { display: block; margin-top: 6px; padding: 8px 10px; border-radius: 8px; background: var(--err-soft); color: var(--ink); font-family: var(--font-body); white-space: normal; }
+.console .done { color: var(--ok); font-family: var(--font-body); font-size: 0.8rem; }
+.console .in-line { display: inline-flex; gap: 6px; align-items: center; }
+.console input.stdin { font-family: var(--font-mono); font-size: 0.9rem; padding: 3px 8px; border-radius: 6px; border: 2px solid var(--accent); background: var(--paper); color: var(--ink); width: 12em; max-width: 60vw; }
+.console .typed { color: var(--accent); font-weight: 600; }
+
+.mini { font-size: 0.85rem; color: var(--muted); }
+.send-panel { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+footer { color: var(--muted); font-size: 0.85rem; }
+@media (prefers-reduced-motion: no-preference) {
+  .countdown span.go { animation: pulse 2.4s ease-in-out infinite; }
+  @keyframes pulse { 50% { transform: translateY(-2px); } }
+}
+</style>
+
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Carnet de mission · Python · Leçon 2</div>
+  <h1>La boucle <span style="color:var(--accent)">while</span></h1>
+  <p class="lead">Répéter quelque chose <b>tant qu'</b>une condition est vraie. Parfait quand on ne sait pas à l'avance combien de tours il faudra.</p>
+  <div class="countdown" aria-hidden="true"><span>⛽</span><span>…</span><span>…</span><span>…</span><span class="go">Réservoir vide</span></div>
+  <nav class="toc" aria-label="Sommaire">
+    <a href="#pourquoi">Pourquoi ?</a>
+    <a href="#comment">Comment ça marche</a>
+    <a href="#ralenti">Au ralenti</a>
+    <a href="#forwhile">for ou while ?</a>
+    <a href="#exemples">Exemples</a>
+    <a href="#erreurs">Erreurs classiques</a>
+    <a href="#exos">Exercices</a>
+  </nav>
+</header>
+
+<section id="pourquoi">
+  <div class="part-label">Partie 1</div>
+  <h2>À quoi ça sert ?</h2>
+  <p>Avec <code>for</code>, on sait à l'avance combien de tours on va faire : 10 tours, 5 lettres…</p>
+  <p>Mais parfois, on ne le sait pas ! Par exemple :</p>
+  <ul>
+    <li><b>Tant que</b> le mot de passe est faux, on le redemande.</li>
+    <li><b>Tant qu'</b>il reste du carburant, la fusée vole.</li>
+    <li><b>Tant que</b> le joueur n'a pas trouvé le nombre secret, le jeu continue.</li>
+  </ul>
+  <p><code>while</code> veut dire « tant que » en anglais. C'est exactement ça : on répète <b>tant que</b> la condition est vraie.</p>
+</section>
+
+<section id="comment">
+  <div class="part-label">Partie 2</div>
+  <h2>Comment ça marche ?</h2>
+<pre class="code">compte = <span class="n">3</span>
+<span class="k">while</span> compte &gt; <span class="n">0</span>:
+    <span class="f">print</span>(compte)
+    compte = compte - <span class="n">1</span>
+<span class="f">print</span>(<span class="s">"Décollage !"</span>)</pre>
+<pre class="out">3
+2
+1
+Décollage !</pre>
+  <p>Une boucle <code>while</code> a toujours besoin de <b>3 ingrédients</b> :</p>
+  <ol>
+    <li><b>Une variable créée avant la boucle</b> : <code>compte = 3</code></li>
+    <li><b>Une condition</b> après <code>while</code> : <code>compte &gt; 0</code>. Tant qu'elle est vraie, on refait un tour.</li>
+    <li><b>Une ligne qui modifie la variable</b> dans la boucle : <code>compte = compte - 1</code>. C'est elle qui permet à la boucle de s'arrêter un jour.</li>
+  </ol>
+  <div class="note warn"><span class="ico">⚠️</span><div>
+    <b>La boucle infinie.</b> Si tu oublies l'ingrédient n°3, <code>compte</code> vaut toujours 3, la condition est toujours vraie… et la boucle ne s'arrête jamais ! Pas de panique : ta page arrête le programme au bout de quelques secondes.
+  </div></div>
+  <div class="note"><span class="ico">💡</span><div>
+    Les conditions s'écrivent comme dans un <code>if</code> : <code>&gt;</code> <code>&lt;</code> <code>&gt;=</code> (supérieur ou égal) <code>&lt;=</code> <code>==</code> (égal) <code>!=</code> (différent).
+  </div></div>
+</section>
+
+<section id="ralenti">
+  <div class="part-label">Partie 3</div>
+  <h2>La boucle au ralenti 🐢</h2>
+  <p>Appuie sur <b>Étape suivante</b> pour voir ce que fait Python, ligne par ligne.</p>
+  <div class="rangeviz tracer">
+    <div class="controls">
+      <label for="tr-n">Valeur de départ de compte :</label>
+      <input id="tr-n" type="number" value="3" min="0" max="6">
+    </div>
+    <div class="tr-code" id="tr-code"></div>
+    <div class="tr-panel">
+      <div><span class="mini">Variable</span><div class="tr-var" id="tr-var">compte = ?</div></div>
+      <div><span class="mini">Ce qui s'affiche</span><pre class="tr-out" id="tr-out"></pre></div>
+    </div>
+    <div class="msg tr-msg" id="tr-msg">Appuie sur « Étape suivante » pour commencer.</div>
+    <div class="bar" style="padding:0">
+      <button class="run" id="tr-next" type="button">Étape suivante ▶</button>
+      <button id="tr-reset" type="button">Recommencer</button>
+    </div>
+  </div>
+</section>
+
+<section id="forwhile">
+  <div class="part-label">Partie 4</div>
+  <h2>for ou while ?</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Situation</th><th>Boucle</th><th>Pourquoi</th></tr></thead>
+    <tbody>
+      <tr><td>Afficher la table de 7</td><td><code>for</code></td><td>on sait qu'il y a 10 lignes</td></tr>
+      <tr><td>Redemander tant que c'est faux</td><td><code>while</code></td><td>on ne sait pas combien d'essais</td></tr>
+      <tr><td>Voler tant qu'il reste du carburant</td><td><code>while</code></td><td>ça dépend du réservoir</td></tr>
+      <tr><td>Compter de 10 à 1</td><td>les deux</td><td>les deux marchent !</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note"><span class="ico">✏️</span><div>
+    <b>Raccourcis :</b> <code>compte -= 1</code> veut dire la même chose que <code>compte = compte - 1</code>, et <code>total += 5</code> la même chose que <code>total = total + 5</code>.
+  </div></div>
+</section>
+
+<section id="exemples">
+  <div class="part-label">Partie 5</div>
+  <h2>Exemples à tester</h2>
+  <p>Ces exemples sont modifiables. Appuie sur <b>▶ Lancer</b>, puis change le code pour voir ce qui se passe.</p>
+  <div id="examples"></div>
+</section>
+
+<section id="erreurs">
+  <div class="part-label">Partie 6</div>
+  <h2>Les erreurs classiques</h2>
+  <ul>
+    <li>Oublier de modifier la variable dans la boucle → <b>boucle infinie</b></li>
+    <li>Oublier de créer la variable avant la boucle → <code>NameError</code></li>
+    <li>Écrire <code>=</code> au lieu de <code>==</code> dans la condition → <code>SyntaxError</code></li>
+    <li>Se tromper entre <code>&gt;</code> et <code>&gt;=</code> → un tour de trop ou de moins</li>
+  </ul>
+</section>
+
+<section id="exos">
+  <div class="part-label">Partie 7 · à toi de jouer</div>
+  <h2>Exercices</h2>
+  <p>Écris ton code dans le cadre sombre, puis appuie sur <b>▶ Lancer</b>. Quand tu penses avoir trouvé, appuie sur <b>✔ Vérifier ma réponse</b> : la page teste ton programme et te dit si c'est juste, et sinon ce qui ne va pas. Si tu bloques, demande un indice (il y en a 3 par exercice, du plus vague au plus précis). Après ton premier essai, le <b>mode réponse</b> 📖 te montre une solution expliquée.</p>
+  <div class="progress" id="progress" aria-live="polite">Exercices réussis : 0 / 5</div>
+  <p class="mini">Astuce : la touche Tab ajoute 4 espaces, et après une ligne qui finit par <code>:</code>, la touche Entrée décale la ligne suivante toute seule.</p>
+  <div id="exercises"></div>
+</section>
+
+<section class="send-panel" aria-labelledby="send-title">
+  <h3 id="send-title">Quand tu as fini</h3>
+  <p>Reviens dans la conversation avec Claude et écris <b>« corrige »</b>. Claude lira directement ce que tu as écrit ici.</p>
+  <p class="mini" id="save-info">Connexion à la sauvegarde…</p>
+  <div><button id="copy-all">Copier tout mon code</button> <span class="mini" id="copy-msg"></span></div>
+  <textarea id="copy-fallback" hidden readonly style="width:100%;min-height:120px;font-family:var(--font-mono)"></textarea>
+</section>
+
+<footer>Carnet de mission · Leçon 2 · Objectif X & MIT 🚀</footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
+<script>
+(function () {
+  // ---------- Contenu ----------
+  const EXAMPLES = [
+      {
+          "id": "exA",
+          "title": "Exemple A · Le compte à rebours avec while",
+          "code": "compte = 5\nwhile compte > 0:\n    print(compte)\n    compte = compte - 1\nprint(\"Décollage ! 🚀\")\n"
+      },
+      {
+          "id": "exB",
+          "title": "Exemple B · Attendre le bon ordre",
+          "code": "ordre = \"\"\nwhile ordre != \"go\":\n    ordre = input(\"Tape go pour lancer : \")\nprint(\"Lancement !\")\n"
+      },
+      {
+          "id": "exC",
+          "title": "Exemple C · Doubler jusqu'à dépasser 1000",
+          "code": "altitude = 1\nsecondes = 0\nwhile altitude < 1000:\n    altitude = altitude * 2\n    secondes = secondes + 1\nprint(\"1000 m dépassés en\", secondes, \"secondes\")\nprint(\"Altitude :\", altitude, \"m\")\n"
+      }
+  ]
+
+  const EXERCISES = [
+    {
+      "id": "ex1",
+      "stars": "⭐",
+      "title": "1. Le compte à rebours, version while 🚀",
+      "text": "<p>Refais le compte à rebours de <b>10 à 1</b>, puis <code>Décollage ! 🚀</code>, mais cette fois avec une boucle <code>while</code> (pas de <code>for</code> !).</p>",
+      "expected": "10\n9\n8\n...\n1\nDécollage ! 🚀",
+      "hints": [
+        "Il te faut les 3 ingrédients : une variable créée avant la boucle, une condition après while, et une ligne qui modifie la variable dans la boucle.",
+        "Crée compte = 10 avant la boucle. La boucle tourne tant que compte est plus grand que 0.",
+        "Dans la boucle : affiche compte, puis enlève-lui 1. Le Décollage s'affiche après la boucle, sans décalage."
+      ],
+      "solution": "compte = 10\nwhile compte > 0:\n    print(compte)\n    compte = compte - 1\nprint(\"Décollage ! 🚀\")",
+      "explain": [
+        "compte = 10 : la variable est créée avant la boucle (ingrédient 1).",
+        "while compte > 0 : on refait un tour tant que compte est plus grand que 0 (ingrédient 2).",
+        "compte = compte - 1 : compte diminue à chaque tour, donc la boucle finit par s'arrêter (ingrédient 3).",
+        "Quand compte vaut 0, la condition est fausse : on sort et on affiche le décollage."
+      ]
+    },
+    {
+      "id": "ex2",
+      "stars": "⭐",
+      "title": "2. Le mot de passe du centre de contrôle 🔐",
+      "text": "<p>Demande le mot de passe. Tant qu'il n'est pas égal à <code>polytechnique</code>, affiche <code>Mot de passe incorrect ❌</code> et redemande-le. Quand il est bon, affiche <code>Accès autorisé 🚀</code>.</p>",
+      "expected": "Mot de passe ? fusee\nMot de passe incorrect ❌\nMot de passe ? mit\nMot de passe incorrect ❌\nMot de passe ? polytechnique\nAccès autorisé 🚀",
+      "hints": [
+        "Demande le mot de passe une première fois, avant la boucle.",
+        "La boucle tourne tant que la réponse est différente de \"polytechnique\". En Python, « différent de » s'écrit !=",
+        "Dans la boucle, il y a 2 choses : afficher Mot de passe incorrect ❌, puis redemander le mot de passe avec input(). Accès autorisé s'affiche après la boucle."
+      ],
+      "solution": "reponse = input(\"Mot de passe ? \")\nwhile reponse != \"polytechnique\":\n    print(\"Mot de passe incorrect ❌\")\n    reponse = input(\"Mot de passe ? \")\nprint(\"Accès autorisé 🚀\")",
+      "explain": [
+        "On demande une première fois avant la boucle, pour que reponse existe.",
+        "while reponse != \"polytechnique\" : on reste dans la boucle tant que c'est faux.",
+        "Dans la boucle, on prévient puis on redemande : c'est le nouvel input qui peut faire sortir de la boucle.",
+        "Si le premier mot de passe est bon, on ne rentre même pas dans la boucle !"
+      ]
+    },
+    {
+      "id": "ex3",
+      "stars": "⭐⭐",
+      "title": "3. Le réservoir de la fusée ⛽",
+      "text": "<p>La fusée consomme <b>7 litres par seconde</b>. Elle peut voler tant qu'il reste <b>au moins 7 litres</b>. Demande combien de litres il y a au départ, puis affiche combien de secondes elle vole et combien de litres il reste.</p>",
+      "expected": "Carburant au départ ? 50\nLa fusée vole 7 secondes\nIl reste 1 litres",
+      "hints": [
+        "Il te faut 2 variables : carburant (le nombre tapé, avec int) et secondes, qui commence à 0.",
+        "La boucle tourne tant que carburant est supérieur ou égal à 7. « Supérieur ou égal » s'écrit >=",
+        "À chaque tour : enlève 7 au carburant et ajoute 1 aux secondes. Les deux print sont après la boucle."
+      ],
+      "solution": "carburant = int(input(\"Carburant au départ ? \"))\nsecondes = 0\nwhile carburant >= 7:\n    carburant = carburant - 7\n    secondes = secondes + 1\nprint(\"La fusée vole\", secondes, \"secondes\")\nprint(\"Il reste\", carburant, \"litres\")",
+      "explain": [
+        "int(...) transforme le texte tapé en nombre.",
+        "secondes = 0 : on compte les secondes, comme un accumulateur.",
+        "while carburant >= 7 : on vole tant qu'il reste au moins 7 litres (>= et pas >, sinon avec 7 litres pile la fusée ne décollerait pas).",
+        "À chaque tour, la fusée brûle 7 litres et vole 1 seconde de plus."
+      ]
+    },
+    {
+      "id": "ex4",
+      "stars": "⭐⭐⭐",
+      "title": "4. Le jeu du nombre secret 🎮",
+      "text": "<p>Écris <code>secret = 37</code> au début. Le joueur propose des nombres jusqu'à trouver le secret. Si sa proposition est trop grande, affiche <code>Plus petit !</code>. Si elle est trop petite, affiche <code>Plus grand !</code>. Quand il trouve, affiche <code>Trouvé en … essais</code>.</p><p><b>Bonus 🎲</b> : une fois que ça marche, remplace 37 par un nombre au hasard avec <code>import random</code> puis <code>secret = random.randint(1, 100)</code>, et joue ! (Pour la vérification, remets 37.)</p>",
+      "expected": "Ton nombre ? 50\nPlus petit !\nTon nombre ? 20\nPlus grand !\nTon nombre ? 37\nTrouvé en 3 essais",
+      "hints": [
+        "Il te faut : secret = 37, une variable essais, et la proposition du joueur. Tu peux demander la première proposition avant la boucle (comme dans l'exercice 2).",
+        "La boucle tourne tant que la proposition est différente du secret. Dans la boucle, utilise if / else pour afficher Plus petit ! ou Plus grand !, puis redemande un nombre.",
+        "Ajoute 1 à essais à chaque input(). Attention : le premier input, avant la boucle, compte aussi ! Et n'oublie pas int(...) autour de input()."
+      ],
+      "solution": "secret = 37\nproposition = int(input(\"Ton nombre ? \"))\nessais = 1\nwhile proposition != secret:\n    if proposition > secret:\n        print(\"Plus petit !\")\n    else:\n        print(\"Plus grand !\")\n    proposition = int(input(\"Ton nombre ? \"))\n    essais = essais + 1\nprint(\"Trouvé en\", essais, \"essais 🎉\")",
+      "explain": [
+        "On demande un premier nombre avant la boucle, et essais vaut déjà 1.",
+        "while proposition != secret : le jeu continue tant que ce n'est pas trouvé.",
+        "Si la proposition est plus grande que le secret, le secret est plus petit : on l'affiche.",
+        "On redemande un nombre et on compte un essai de plus. Quand c'est trouvé, on sort de la boucle."
+      ]
+    },
+    {
+      "id": "ex5",
+      "stars": "🔥 Défi",
+      "defi": true,
+      "title": "5. Le mystère de Syracuse",
+      "text": "<p>Un vrai mystère des mathématiques ! Prends un nombre <code>n</code>. S'il est <b>pair</b>, divise-le par 2. S'il est <b>impair</b>, multiplie-le par 3 et ajoute 1. Recommence <b>tant que</b> n n'est pas égal à 1.</p><p>Personne au monde n'a encore prouvé qu'on arrive toujours à 1 ! Demande <code>n</code>, affiche chaque nombre de la suite (le nombre de départ compris, un par ligne), puis le nombre d'étapes. Essaie ensuite avec 27 : tu vas être surpris 😮</p>",
+      "expected": "Nombre de départ ? 6\n6\n3\n10\n5\n16\n8\n4\n2\n1\nArrivé à 1 en 8 étapes",
+      "hints": [
+        "Pour savoir si n est pair : n % 2 == 0. Pour diviser sans virgule, utilise // : 10 // 2 donne 5 (et pas 5.0).",
+        "Affiche n une première fois avant la boucle. La boucle tourne tant que n est différent de 1. Dans la boucle, calcule le nouveau n avec if / else, puis affiche-le.",
+        "Pour compter les étapes, crée etapes = 0 avant la boucle et ajoute 1 à chaque tour. Le message final est après la boucle."
+      ],
+      "solution": "n = int(input(\"Nombre de départ ? \"))\netapes = 0\nprint(n)\nwhile n != 1:\n    if n % 2 == 0:\n        n = n // 2\n    else:\n        n = 3 * n + 1\n    print(n)\n    etapes = etapes + 1\nprint(\"Arrivé à 1 en\", etapes, \"étapes\")",
+      "explain": [
+        "On affiche le nombre de départ avant la boucle.",
+        "while n != 1 : on continue tant qu'on n'est pas arrivé à 1.",
+        "n % 2 == 0 teste si n est pair. n // 2 divise sans virgule.",
+        "À chaque tour, on affiche le nouveau n et on compte une étape."
+      ]
+    }
+  ]
+
+  // ---------- Stockage ----------
+  let db = null;
+  const LS = "lecon2-";
+  function lsGet(k) { try { return localStorage.getItem(LS + k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(LS + k, v); } catch (e) {} }
+
+  const saveInfo = document.getElementById("save-info");
+  const editors = {};
+  const statuses = {};
+  const pending = {};
+  const lastSaved = {};
+
+  async function saveRemote(id) {
+    if (!db) return;
+    const code = editors[id].value;
+    if (lastSaved[id] === code) return;
+    if (pending[id]) { pending[id].again = true; return; }
+    pending[id] = { again: false };
+    try {
+      await db.doc("reponses/" + id).set({ exercice: id, code: code, misAJour: new Date().toISOString() });
+      lastSaved[id] = code;
+      statuses[id].textContent = "✓ Enregistré pour Claude";
+      statuses[id].className = "status saved";
+    } catch (e) {
+      statuses[id].textContent = "Enregistré sur cet appareil seulement";
+      statuses[id].className = "status";
+    }
+    const again = pending[id].again; pending[id] = null;
+    if (again) saveRemote(id);
+  }
+
+  // ---------- Éditeur ----------
+  // Le Mac et l'iPad remplacent " par “ ” et ' par ’ : Python ne les comprend pas.
+  function cleanCode(s) {
+    return s.replace(/[“”„‟«»″]/g, '"')
+            .replace(/[‘’‚‛′]/g, "'")
+            .replace(/[    ]/g, " ")
+            .replace(/[−–—]/g, "-")
+            .replace(/…/g, "...")
+            .replace(/\t/g, "    ")
+            .replace(/\r\n?/g, "\n");
+  }
+  function setupEditor(ta) {
+    ta.addEventListener("input", () => {
+      const c = cleanCode(ta.value);
+      if (c !== ta.value) {
+        const pos = ta.selectionStart - (ta.value.length - c.length);
+        ta.value = c;
+        ta.setSelectionRange(Math.max(0, pos), Math.max(0, pos));
+      }
+    });
+    ta.addEventListener("keydown", (e) => {
+      if (e.key === "Tab" && !e.shiftKey) {
+        e.preventDefault();
+        ta.setRangeText("    ", ta.selectionStart, ta.selectionEnd, "end");
+        ta.dispatchEvent(new Event("input"));
+      } else if (e.key === "Enter" && !e.isComposing) {
+        const before = ta.value.slice(0, ta.selectionStart);
+        const line = before.slice(before.lastIndexOf("\n") + 1);
+        let indent = (line.match(/^ */) || [""])[0];
+        if (/:\s*(#.*)?$/.test(line)) indent += "    ";
+        e.preventDefault();
+        ta.setRangeText("\n" + indent, ta.selectionStart, ta.selectionEnd, "end");
+        ta.dispatchEvent(new Event("input"));
+      }
+    });
+  }
+
+  // ---------- Exécution Python (Skulpt) ----------
+  function frenchTip(msg) {
+    if (/IndentationError|unexpected indent|expected an indented block|unindent/i.test(msg))
+      return "Problème d'indentation : vérifie que les lignes dans la boucle sont décalées de 4 espaces, et que les autres ne le sont pas.";
+    if (/SyntaxError/i.test(msg))
+      return "Erreur de syntaxe : as-tu oublié les deux-points « : » à la fin du for ou du if ? Une parenthèse ou un guillemet qui n'est pas fermé ?";
+    const cap = msg.match(/name '(For|Print|In|If|Range|Input|Int|Else|Elif|While)' is not defined/);
+    if (cap)
+      return "Ton clavier a mis une majuscule à « " + cap[1] + " ». En Python, il faut tout en minuscules : « " + cap[1].toLowerCase() + " ».";
+    if (/NameError/i.test(msg))
+      return "Python ne connaît pas un nom. Vérifie l'orthographe (majuscules comprises) et que la variable est créée avant d'être utilisée.";
+    if (/TypeError/i.test(msg) && /str/i.test(msg))
+      return "Tu mélanges du texte et des nombres. Rappel : input() donne du texte, utilise int(...) pour le transformer en nombre.";
+    if (/ValueError/i.test(msg))
+      return "La valeur tapée ne peut pas être transformée en nombre. Tape un nombre entier, par exemple 7.";
+    if (/TimeLimitError|time limit/i.test(msg))
+      return "Ton programme tourne trop longtemps. Ta boucle a-t-elle beaucoup trop de tours ?";
+    return "";
+  }
+
+
+  // ---------- Vérification automatique ----------
+  const num = (t) => (t.match(/-?\d+/g) || []).map(Number);
+  const linesOf = (out) => out.replace(/\s+$/, "").split("\n").map(l => l.replace(/\s+$/, ""));
+  const plain = (t) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  const numberLines = (out) => linesOf(out).filter(l => /\d/.test(l));
+  const lastNum = (out) => { const n = num(out); return n.length ? n[n.length - 1] : null; };
+
+  const needWhile = (code) => /\bwhile\b/.test(code) ? null : "Cet exercice doit utiliser une boucle while. Je n'en vois pas dans ton code.";
+  const CHECKS = {
+    ex1: { tests: [[]], judge(out, inp, used, code) {
+      const w = needWhile(code); if (w) return w;
+      const lines = linesOf(out).map(l => l.trim()).filter(l => l);
+      const nums = lines.filter(l => /^-?\d+$/.test(l)).map(Number);
+      const want = [10,9,8,7,6,5,4,3,2,1];
+      if (!nums.length) return "Je ne vois pas les nombres de 10 à 1, un par ligne.";
+      if (nums.join() !== want.join()) {
+        if (nums[0] === 9) return "Ton compte à rebours commence à 9 au lieu de 10 : as-tu enlevé 1 avant le print ? Essaie d'afficher d'abord, puis d'enlever 1.";
+        if (nums[0] !== 10) return "Ton compte à rebours doit commencer à 10, et le tien commence à " + nums[0] + ".";
+        if (nums[nums.length - 1] === 0) return "Ton compte à rebours va jusqu'à 0. Il doit s'arrêter à 1 : regarde ta condition.";
+        if (nums[nums.length - 1] === 2) return "Ton compte à rebours s'arrête à 2. Il doit aller jusqu'à 1 : regarde ta condition (> ou >= ?).";
+        return "J'attendais 10, 9, 8 … 1 et ton programme affiche : " + nums.join(", ") + ".";
+      }
+      const deco = lines.filter(l => plain(l).includes("decollage"));
+      if (!deco.length) return "Les nombres sont parfaits 👏 Il manque juste « Décollage ! 🚀 » à la fin.";
+      if (deco.length > 1) return "« Décollage » s'affiche " + deco.length + " fois. Il doit s'afficher une seule fois, après la boucle : enlève le décalage.";
+      if (!plain(lines[lines.length - 1]).includes("decollage")) return "« Décollage » doit s'afficher à la fin, après le 1.";
+      return null;
+    }},
+    ex2: { tests: [["fusee", "mit", "polytechnique"], ["polytechnique"], ["Polytechnique", "polytechnique"]], judge(out, inp, used, code) {
+      const w = needWhile(code); if (w) return w;
+      const L = linesOf(out).map(plain);
+      const bad = L.filter(l => l.includes("incorrect")).length;
+      const ok = L.filter(l => l.includes("autoris")).length;
+      const shown = inp.map(x => "« " + x + " »").join(" puis ");
+      if (used < inp.length) return "Avec " + shown + ", ton programme s'arrête trop tôt : il n'a demandé le mot de passe que " + used + " fois.";
+      if (!ok) return "Avec " + shown + ", je ne vois pas « Accès autorisé 🚀 » à la fin.";
+      if (ok > 1) return "« Accès autorisé » s'affiche plusieurs fois. Il doit s'afficher une seule fois, après la boucle.";
+      if (bad !== inp.length - 1) return "Avec " + shown + ", « Mot de passe incorrect ❌ » devrait s'afficher " + (inp.length - 1) + " fois, et il s'affiche " + bad + " fois.";
+      if (!L[L.length - 1].includes("autoris")) return "« Accès autorisé » doit être la dernière chose affichée.";
+      return null;
+    }},
+    ex3: { tests: [["50"], ["7"], ["3"], ["100"]], judge(out, inp, used, code) {
+      const w = needWhile(code); if (w) return w;
+      const c = Number(inp[0]); const ws = Math.floor(c / 7), wr = c % 7;
+      const nl = numberLines(out);
+      if (!nl.length) return "Avec " + c + " litres, ton programme n'affiche aucun nombre.";
+      if (nl.length > 2) return "Ton programme affiche beaucoup de lignes avec des nombres. Les print du résultat doivent être après la boucle, sans décalage.";
+      const nums = nl.flatMap(num);
+      if (nums.includes(ws) && nums.includes(wr) && (ws !== wr || nums.filter(x => x === ws).length >= 2)) return null;
+      if (c === 7 && nums.includes(0) && nums.includes(7)) return "Avec 7 litres pile, la fusée peut voler 1 seconde (il reste au moins 7 litres). « Au moins 7 », c'est >= et pas >.";
+      return "Avec " + c + " litres, la fusée vole " + ws + " seconde(s) et il reste " + wr + " litre(s). Ton programme affiche les nombres : " + nums.join(", ") + ".";
+    }},
+    ex4: { tests: [["50", "20", "37"], ["37"], ["40", "30", "36", "38", "37"]], judge(out, inp, used, code) {
+      const w = needWhile(code); if (w) return w;
+      if (!/secret\s*=\s*37/.test(code)) return "Pour la vérification, écris secret = 37 au début de ton programme.";
+      const seq = linesOf(out).map(plain).filter(l => l.includes("plus petit") || l.includes("plus grand")).map(l => l.includes("plus petit") ? "P" : "G");
+      const want = inp.slice(0, -1).map(x => Number(x) > 37 ? "P" : "G");
+      if (used < inp.length) return "Avec les propositions " + inp.join(", ") + ", ton programme s'arrête avant que le joueur ait trouvé.";
+      for (let i = 0; i < want.length; i++) {
+        if (seq[i] !== want[i]) return "Quand le joueur propose " + inp[i] + ", le secret (37) est " + (want[i] === "P" ? "plus petit" : "plus grand") + " : il faut afficher « " + (want[i] === "P" ? "Plus petit !" : "Plus grand !") + " »" + (seq[i] ? ", et ton programme affiche l'inverse." : ".");
+      }
+      if (seq.length > want.length) return "Ton programme affiche « Plus petit » ou « Plus grand » même quand le joueur a trouvé.";
+      const got = lastNum(out);
+      if (got !== inp.length) return got === inp.length - 1
+        ? "Ton compteur oublie un essai : as-tu compté le tout premier nombre proposé ?"
+        : "Avec " + inp.length + " propositions, il faut afficher « Trouvé en " + inp.length + " essais », et ton programme affiche " + got + ".";
+      return null;
+    }},
+    ex5: { tests: [["6"], ["1"], ["27"]], judge(out, inp, used, code) {
+      const w = needWhile(code); if (w) return w;
+      let n = Number(inp[0]); const seq = [n]; while (n !== 1) { n = n % 2 === 0 ? n / 2 : 3 * n + 1; seq.push(n); }
+      if (/\d\.0\b/.test(out)) return "Je vois des nombres avec « .0 » : utilise // au lieu de / pour diviser sans virgule.";
+      const got = linesOf(out).map(l => l.trim()).filter(l => /^-?\d+$/.test(l)).map(Number);
+      const start = inp[0];
+      if (got.join() !== seq.join()) {
+        if (got.join() === seq.slice(1).join()) return "Avec " + start + ", il manque le nombre de départ au début : affiche-le avant la boucle.";
+        if (got.join() === seq.slice(0, -1).join()) return "Avec " + start + ", la suite doit se terminer par 1. Affiche-le aussi.";
+        const k = got.findIndex((x, i) => x !== seq[i]);
+        return "Avec " + start + ", le nombre n°" + (k + 1) + " devrait être " + seq[k] + (got[k] !== undefined ? " et ton programme affiche " + got[k] : "") + ".";
+      }
+      const steps = seq.length - 1;
+      if (lastNum(out) !== steps) return "La suite est parfaite 👏 Avec " + start + ", il faut " + steps + " étapes, et ton programme affiche " + lastNum(out) + " à la fin.";
+      return null;
+    }},
+  };
+
+  function runSilent(code, inputs) {
+    const queue = inputs.slice(); const total = inputs.length;
+    let out = "";
+    Sk.configure({
+      __future__: Sk.python3,
+      output: (t) => { out += t; },
+      read: (f) => {
+        if (Sk.builtinFiles === undefined || Sk.builtinFiles.files[f] === undefined) throw "Fichier introuvable : " + f;
+        return Sk.builtinFiles.files[f];
+      },
+      inputfunTakesPrompt: true,
+      inputfun: () => queue.length ? Promise.resolve(queue.shift()) : Promise.reject(new Error("TROP_INPUT")),
+      execLimit: 4000,
+    });
+    return Sk.misceval.asyncToPromise(() => Sk.importMainWithBody("<stdin>", false, code, true))
+      .then(() => ({ out, used: total - queue.length }), (err) => ({ out, used: total - queue.length, err: err && err.toString ? err.toString() : String(err) }));
+  }
+
+  const tried = {}, seen = {};
+  function buildAnswer(item) {
+    const box = document.createElement("div"); box.className = "answer"; box.id = "ans-" + item.id;
+    const h = document.createElement("div"); h.className = "fb-title"; h.textContent = "📖 Mode réponse";
+    const body = document.createElement("div");
+    box.append(h, body);
+    const render = () => {
+      body.textContent = "";
+      if (seen[item.id]) {
+        const pre = document.createElement("pre"); pre.className = "code"; pre.textContent = item.solution;
+        const t = document.createElement("div"); t.textContent = "Explication, ligne par ligne :";
+        const ol = document.createElement("ol");
+        item.explain.forEach(x => { const li = document.createElement("li"); li.textContent = x; ol.appendChild(li); });
+        const tip = document.createElement("p"); tip.className = "mini";
+        tip.textContent = "Ce n'est pas la seule bonne réponse ! Maintenant, efface ton code, recopie la solution sans la regarder, et appuie sur ✔ Vérifier. C'est en l'écrivant toi-même que tu retiens.";
+        body.append(pre, t, ol, tip);
+      } else if (!tried[item.id]) {
+        const p = document.createElement("p"); p.className = "locked";
+        p.textContent = "🔒 La réponse se débloque après ton premier essai avec « ✔ Vérifier ma réponse ».";
+        body.appendChild(p);
+      } else {
+        const ask = document.createElement("div"); ask.className = "ask";
+        const b = document.createElement("button"); b.type = "button"; b.textContent = "Voir la réponse";
+        b.addEventListener("click", () => {
+          ask.textContent = "";
+          const q = document.createElement("span"); q.textContent = "Tu es sûr ? As-tu essayé les 3 indices ? ";
+          const yes = document.createElement("button"); yes.type = "button"; yes.textContent = "Oui, montre-moi";
+          const no = document.createElement("button"); no.type = "button"; no.textContent = "Non, je réessaie 💪";
+          yes.addEventListener("click", () => {
+            seen[item.id] = true; lsSet(item.id + "-sol", "1"); render();
+            if (db) db.doc("reponses/" + item.id).update({ solutionVue: true }).catch(() => {});
+          });
+          no.addEventListener("click", render);
+          ask.append(q, yes, no);
+        });
+        ask.appendChild(b); body.appendChild(ask);
+      }
+    };
+    box._render = render;
+    if (lsGet(item.id + "-sol") === "1") seen[item.id] = true;
+    if (lsGet(item.id + "-tried") === "1") tried[item.id] = true;
+    render();
+    return box;
+  }
+  function markTried(id) {
+    if (tried[id]) return;
+    tried[id] = true; lsSet(id + "-tried", "1");
+    const a = document.getElementById("ans-" + id); if (a && a._render) a._render();
+  }
+
+  const solved = {};
+  function updateProgress() {
+    const n = EXERCISES.filter(e => solved[e.id]).length;
+    const el = document.getElementById("progress");
+    if (el) el.textContent = "Exercices réussis : " + n + " / " + EXERCISES.length + (n === EXERCISES.length ? " 🚀 Mission accomplie !" : "");
+  }
+  function markSolved(id, yes) {
+    solved[id] = yes;
+    const lab = document.getElementById("lab-" + id);
+    if (lab) { lab.classList.toggle("done", yes); lab.querySelector(".badge-ok").hidden = !yes; }
+    updateProgress();
+  }
+
+  async function checkExercise(item, ta, fb) {
+    if (running) return;
+    if (typeof Sk === "undefined") { fb.hidden = false; fb.className = "feedback ko"; fb.textContent = "Le moteur Python ne s'est pas chargé. Recharge la page."; return; }
+    ta.value = cleanCode(ta.value);
+    if (!ta.value.trim()) { fb.hidden = false; fb.className = "feedback ko"; fb.textContent = "Écris d'abord ton code dans le cadre sombre 🙂"; return; }
+    running = true;
+    document.querySelectorAll("button.run, button.check").forEach(b => b.disabled = true);
+    fb.hidden = false; fb.className = "feedback"; fb.textContent = "Je vérifie ton programme…";
+    markTried(item.id);
+    const chk = CHECKS[item.id];
+    let problem = null, passed = 0;
+    for (const inp of chk.tests) {
+      const r = await runSilent(ta.value, inp);
+      if (r.err) {
+        if (/TROP_INPUT/.test(r.err)) problem = inp.length ? "Ton programme continue à poser des questions alors que la bonne réponse a été donnée (j'ai répondu : " + inp.join(", ") + "). Vérifie la condition de ta boucle." : "Cet exercice n'a pas besoin d'input().";
+        else if (/TimeLimit|time limit/i.test(r.err)) problem = "Ton programme tourne sans s'arrêter (ou beaucoup trop longtemps). Vérifie ta boucle.";
+        else problem = "Ton programme a une erreur : « " + r.err + " ». Clique sur ▶ Lancer pour voir l'explication.";
+        break;
+      }
+      const msg = chk.judge(r.out, inp, r.used, ta.value);
+      if (msg) { problem = msg; break; }
+      passed++;
+    }
+    running = false;
+    document.querySelectorAll("button.run, button.check").forEach(b => b.disabled = false);
+    fb.textContent = "";
+    const title = document.createElement("div"); title.className = "fb-title";
+    const detail = document.createElement("div");
+    if (!problem) {
+      fb.className = "feedback ok";
+      title.textContent = "✅ Bravo, c'est juste !";
+      detail.textContent = chk.tests.length > 1 ? "J'ai testé ton programme avec " + chk.tests.length + " réponses différentes : tout est bon." : "Ton programme affiche exactement ce qu'il faut.";
+      markSolved(item.id, true);
+    } else {
+      fb.className = "feedback ko";
+      title.textContent = "❌ Pas encore… mais tu y es presque !";
+      detail.textContent = problem + (passed ? " (" + passed + " test" + (passed > 1 ? "s" : "") + " réussi" + (passed > 1 ? "s" : "") + " avant celui-ci.)" : "");
+      markSolved(item.id, false);
+    }
+    fb.append(title, detail);
+    lsSet(item.id + "-ok", problem ? "" : "1");
+    if (db) {
+      try { await db.doc("reponses/" + item.id).set({ exercice: item.id, code: ta.value, reussi: !problem, verification: problem || "OK", solutionVue: !!seen[item.id], misAJour: new Date().toISOString() }); lastSaved[item.id] = ta.value; statuses[item.id].textContent = "✓ Enregistré pour Claude"; statuses[item.id].className = "status saved"; } catch (e) {}
+    }
+  }
+
+  let running = false;
+  function makeRunner(ta, consoleEl, runBtn, onRun) {
+    runBtn.addEventListener("click", () => {
+      if (running) return;
+      if (typeof Sk === "undefined") {
+        consoleEl.innerHTML = '<span class="err">Le moteur Python ne s\'est pas chargé. Vérifie ta connexion internet et recharge la page.</span>';
+        return;
+      }
+      running = true;
+      document.querySelectorAll("button.run, button.check").forEach(b => b.disabled = true);
+      consoleEl.textContent = "";
+      const outNode = () => { const s = document.createElement("span"); consoleEl.appendChild(s); return s; };
+      Sk.configure({
+        __future__: Sk.python3,
+        output: (t) => { outNode().textContent = t; },
+        read: (f) => {
+          if (Sk.builtinFiles === undefined || Sk.builtinFiles.files[f] === undefined) throw "Fichier introuvable : " + f;
+          return Sk.builtinFiles.files[f];
+        },
+        inputfunTakesPrompt: true,
+        inputfun: (promptText) => new Promise((resolve) => {
+          const wrap = document.createElement("span"); wrap.className = "in-line";
+          const p = document.createElement("span"); p.textContent = promptText || "";
+          const inp = document.createElement("input"); inp.className = "stdin"; inp.type = "text";
+          inp.setAttribute("aria-label", "Réponse à input()"); inp.placeholder = "tape puis Entrée";
+          wrap.append(p, inp); consoleEl.appendChild(wrap);
+          inp.focus();
+          inp.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              const v = inp.value;
+              const typed = document.createElement("span"); typed.className = "typed"; typed.textContent = v;
+              wrap.replaceWith(p, typed, document.createTextNode("\n"));
+              resolve(v);
+            }
+          });
+        }),
+        execLimit: 8000,
+      });
+      onRun && onRun();
+      Sk.misceval.asyncToPromise(() => Sk.importMainWithBody("<stdin>", false, (ta.value = cleanCode(ta.value)), true))
+        .then(() => {
+          if (!consoleEl.textContent) consoleEl.innerHTML = '<span class="placeholder">(Ton programme n\'a rien affiché.)</span>';
+          const d = document.createElement("span"); d.className = "done"; d.textContent = (consoleEl.textContent.endsWith("\n") ? "" : "\n") + "— fin du programme —"; consoleEl.appendChild(d);
+        })
+        .catch((err) => {
+          let msg = err && err.toString ? err.toString() : String(err);
+          const lineMatch = msg.match(/on line (\d+)/);
+          const e = document.createElement("span"); e.className = "err";
+          e.textContent = (consoleEl.textContent ? "\n" : "") + "Erreur : " + msg;
+          consoleEl.appendChild(e);
+          const capKw = ta.value.match(/^\s*(For|If|Elif|Else|While|Print|Range|Input)\b/m);
+          const tip = capKw ? "Ton clavier a mis une majuscule à « " + capKw[1] + " ». En Python, il faut l'écrire en minuscules : « " + capKw[1].toLowerCase() + " »." : frenchTip(msg);
+          if (tip) { const t = document.createElement("span"); t.className = "tip"; t.textContent = "💡 " + tip + (lineMatch ? " (regarde la ligne " + lineMatch[1] + ")" : ""); consoleEl.appendChild(t); }
+        })
+        .finally(() => {
+          running = false;
+          document.querySelectorAll("button.run, button.check").forEach(b => b.disabled = false);
+        });
+    });
+  }
+
+  function buildLab(item, isExercise) {
+    const lab = document.createElement("div");
+    lab.className = "lab" + (item.defi ? " defi" : "");
+    const head = document.createElement("div"); head.className = "lab-head";
+    head.innerHTML = '<div class="title-row"><h3></h3>' + (item.stars ? '<span class="stars"></span>' : "") + "</div>";
+    head.querySelector("h3").textContent = item.title;
+    if (isExercise) { lab.id = "lab-" + item.id; const bd = document.createElement("span"); bd.className = "badge-ok"; bd.textContent = "✅ Réussi"; bd.hidden = true; head.querySelector(".title-row").appendChild(bd); }
+    if (item.stars) head.querySelector(".stars").textContent = item.stars;
+    if (isExercise) {
+      const body = document.createElement("div"); body.innerHTML = item.text; head.appendChild(body);
+      const ex = document.createElement("pre"); ex.className = "expected"; ex.textContent = item.expected; head.appendChild(ex);
+      const hs = document.createElement("div"); hs.className = "hints";
+      const hb = document.createElement("button"); hb.type = "button";
+      let shown = 0;
+      const label = () => { hb.textContent = "💡 Indice " + (shown + 1) + " sur " + item.hints.length; };
+      label();
+      hb.addEventListener("click", () => {
+        const p = document.createElement("p"); p.className = "hint-item";
+        const b = document.createElement("b"); b.textContent = "Indice " + (shown + 1) + " : ";
+        p.append(b, document.createTextNode(item.hints[shown]));
+        hs.insertBefore(p, hb); shown++;
+        if (shown >= item.hints.length) hb.hidden = true; else label();
+      });
+      hs.appendChild(hb); head.appendChild(hs);
+    }
+    lab.appendChild(head);
+
+    const box = document.createElement("div"); box.className = "editor-box";
+    const ta = document.createElement("textarea"); ta.className = "editor"; ta.id = "code-" + item.id;
+    ta.spellcheck = false; ta.setAttribute("autocapitalize", "off"); ta.setAttribute("autocomplete", "off"); ta.setAttribute("autocorrect", "off");
+    ta.setAttribute("aria-label", "Code de " + item.title);
+    if (isExercise) {
+      ta.placeholder = "# Écris ton code ici";
+      ta.value = lsGet(item.id) || "";
+    } else {
+      ta.value = item.code;
+      ta.style.minHeight = (item.code.split("\n").length * 1.6 + 2) + "em";
+    }
+    box.appendChild(ta); lab.appendChild(box);
+    setupEditor(ta);
+
+    const bar = document.createElement("div"); bar.className = "bar";
+    const run = document.createElement("button"); run.className = "run"; run.textContent = "▶ Lancer";
+    bar.appendChild(run);
+    let checkBtn = null;
+    if (isExercise) { checkBtn = document.createElement("button"); checkBtn.className = "check"; checkBtn.textContent = "✔ Vérifier ma réponse"; bar.appendChild(checkBtn); }
+    if (!isExercise) {
+      const reset = document.createElement("button"); reset.textContent = "Remettre l'exemple";
+      reset.addEventListener("click", () => { ta.value = item.code; });
+      bar.appendChild(reset);
+    }
+    const st = document.createElement("span"); st.className = "status"; bar.appendChild(st);
+    lab.appendChild(bar);
+
+    const cons = document.createElement("div"); cons.className = "console"; cons.setAttribute("aria-live", "polite");
+    cons.innerHTML = '<span class="placeholder">Le résultat de ton programme s\'affichera ici.</span>';
+    lab.appendChild(cons);
+
+    if (isExercise) {
+      editors[item.id] = ta; statuses[item.id] = st;
+      let t = null;
+      ta.addEventListener("input", () => {
+        lsSet(item.id, ta.value);
+        st.textContent = "Modifié"; st.className = "status";
+        clearTimeout(t); t = setTimeout(() => saveRemote(item.id), 2500);
+      });
+      makeRunner(ta, cons, run, () => saveRemote(item.id));
+      const fb = document.createElement("div"); fb.className = "feedback"; fb.hidden = true; fb.setAttribute("aria-live", "polite");
+      lab.insertBefore(fb, cons);
+      lab.appendChild(buildAnswer(item));
+      checkBtn.addEventListener("click", () => checkExercise(item, ta, fb));
+      if (lsGet(item.id + "-ok") === "1") setTimeout(() => markSolved(item.id, true), 0);
+    } else {
+      makeRunner(ta, cons, run);
+    }
+    return lab;
+  }
+
+  const exWrap = document.getElementById("examples");
+  EXAMPLES.forEach(e => exWrap.appendChild(buildLab(e, false)));
+  exWrap.style.display = "flex"; exWrap.style.flexDirection = "column"; exWrap.style.gap = "16px";
+  const exoWrap = document.getElementById("exercises");
+  EXERCISES.forEach(e => exoWrap.appendChild(buildLab(e, true)));
+  exoWrap.style.display = "flex"; exoWrap.style.flexDirection = "column"; exoWrap.style.gap = "20px";
+
+  // ---------- Boucle au ralenti ----------
+  const trN = document.getElementById("tr-n"), trCode = document.getElementById("tr-code");
+  const trVar = document.getElementById("tr-var"), trOut = document.getElementById("tr-out"), trMsg = document.getElementById("tr-msg");
+  let trSteps = [], trI = -1;
+  function trBuild() {
+    let start = parseInt(trN.value, 10); if (Number.isNaN(start)) start = 3; start = Math.max(0, Math.min(6, start));
+    const src = ["compte = " + start, "while compte > 0:", "    print(compte)", "    compte = compte - 1", 'print("Décollage !")'];
+    trCode.textContent = "";
+    src.forEach((t, i) => { const d = document.createElement("div"); d.className = "tl"; const ln = document.createElement("span"); ln.className = "ln"; ln.textContent = i + 1; d.append(ln, document.createTextNode(t)); trCode.appendChild(d); });
+    trSteps = []; let c = start, out = "", tour = 0;
+    trSteps.push({ line: 0, c, out, msg: "On crée la variable compte, qui vaut " + c + "." });
+    while (true) {
+      if (c > 0) {
+        tour++;
+        trSteps.push({ line: 1, c, out, msg: "Test : " + c + " > 0 ? VRAI ✅ → on entre dans la boucle (tour n°" + tour + ")." });
+        out += c + "\n";
+        trSteps.push({ line: 2, c, out, msg: "On affiche compte, c'est-à-dire " + c + "." });
+        c--;
+        trSteps.push({ line: 3, c, out, msg: "compte diminue de 1 : il vaut maintenant " + c + ". On remonte à la ligne du while." });
+      } else {
+        trSteps.push({ line: 1, c, out, msg: "Test : " + c + " > 0 ? FAUX ❌ → on sort de la boucle (" + tour + " tour" + (tour > 1 ? "s" : "") + " en tout)." });
+        break;
+      }
+    }
+    out += "Décollage !\n";
+    trSteps.push({ line: 4, c, out, msg: "On est sorti de la boucle : on affiche Décollage ! C'est fini 🚀" });
+    trI = -1; trShow();
+  }
+  function trShow() {
+    const st = trSteps[trI];
+    [...trCode.children].forEach((d, i) => d.classList.toggle("on", !!st && st.line === i));
+    trVar.textContent = st ? "compte = " + st.c : "compte = ?";
+    trOut.textContent = st ? st.out : "";
+    trMsg.textContent = st ? st.msg : "Appuie sur « Étape suivante » pour commencer.";
+    document.getElementById("tr-next").disabled = trI >= trSteps.length - 1;
+  }
+  document.getElementById("tr-next").addEventListener("click", () => { if (trI < trSteps.length - 1) { trI++; trShow(); } });
+  document.getElementById("tr-reset").addEventListener("click", () => { trI = -1; trShow(); });
+  trN.addEventListener("input", trBuild);
+  trBuild();
+
+  // ---------- Copier ----------
+  function allCode() {
+    return EXERCISES.map(e => "# ===== " + e.title + (solved[e.id] ? " (✅ vérifié)" : "") + (seen[e.id] ? " (📖 réponse vue)" : "") + " =====\n" + (editors[e.id].value || "# (pas encore fait)")).join("\n\n");
+  }
+  document.getElementById("copy-all").addEventListener("click", () => {
+    const txt = allCode(); const msg = document.getElementById("copy-msg");
+    const fb = document.getElementById("copy-fallback");
+    const showFallback = () => { fb.hidden = false; fb.value = txt; fb.focus(); fb.select(); msg.textContent = "Sélectionne le texte ci-dessous et copie-le."; };
+    try {
+      navigator.clipboard.writeText(txt).then(() => { msg.textContent = "Copié ✓ Colle-le dans la conversation."; }, showFallback);
+    } catch (e) { showFallback(); }
+  });
+
+  // ---------- Connexion db ----------
+  let dbTimer = setTimeout(() => { if (!db) saveInfo.textContent = "Ton code est gardé sur cet appareil. Si Claude ne le voit pas, utilise « Copier tout mon code » et colle-le dans la conversation."; }, 10000);
+  (async () => {
+    try {
+      const c = window.claude && window.claude.use ? await window.claude.use("db") : null;
+      clearTimeout(dbTimer);
+      if (!c) { saveInfo.textContent = "Ton code est gardé sur cet appareil. Pour que Claude le voie, utilise « Copier tout mon code » et colle-le dans la conversation."; return; }
+      db = c;
+      saveInfo.textContent = "✓ Sauvegarde active : Claude pourra lire tes réponses.";
+      // Récupère les réponses déjà enregistrées (autre appareil, Mac ↔ iPad)
+      for (const e of EXERCISES) {
+        try {
+          const snap = await db.doc("reponses/" + e.id).get();
+          if (snap.exists) {
+            const code = snap.data().code || "";
+            lastSaved[e.id] = code;
+            if (!editors[e.id].value && code) { editors[e.id].value = code; lsSet(e.id, code); }
+            if (snap.data().reussi === true && editors[e.id].value === code) markSolved(e.id, true);
+            if (editors[e.id].value === code && code) { statuses[e.id].textContent = "✓ Enregistré pour Claude"; statuses[e.id].className = "status saved"; }
+          }
+        } catch (err) {}
+      }
+    } catch (err) {
+      clearTimeout(dbTimer);
+      saveInfo.textContent = "Ton code est gardé sur cet appareil. Pour que Claude le voie, utilise « Copier tout mon code ».";
+    }
+  })();
+})();
+</script>
