@@ -1,0 +1,147 @@
+==============================================================
+  LEÇON 2 — LA BOUCLE WHILE : LES 5 EXERCICES
+  LESSON 2 — THE WHILE LOOP: THE 5 EXERCISES
+==============================================================
+  Français 🇫🇷 puis English 🇬🇧 pour chaque exercice.
+  French 🇫🇷 then English 🇬🇧 for each exercise.
+
+  Utilise une boucle while dans chaque exercice.
+  Use a while loop in every exercise.
+
+
+--------------------------------------------------------------
+EXERCICE 1 ⭐ — Le compte à rebours, version while 🚀
+EXERCISE 1 ⭐ — The countdown, while version 🚀
+--------------------------------------------------------------
+🇫🇷 Affiche les nombres de 10 à 1 (un par ligne), puis affiche
+   « Décollage ! 🚀 ». Utilise une boucle while (pas de for !).
+
+🇬🇧 Print the numbers from 10 down to 1 (one per line), then
+   print "Liftoff! 🚀". Use a while loop (no for!).
+
+Résultat attendu / Expected output:
+   10
+   9
+   ...
+   1
+   Décollage ! 🚀
+
+
+--------------------------------------------------------------
+EXERCICE 2 ⭐ — Le mot de passe du centre de contrôle 🔐
+EXERCISE 2 ⭐ — The control center password 🔐
+--------------------------------------------------------------
+🇫🇷 Demande le mot de passe. Tant qu'il n'est pas égal à
+   « polytechnique », affiche « Mot de passe incorrect ❌ » et
+   redemande-le. Quand il est bon, affiche « Accès autorisé 🚀 ».
+
+🇬🇧 Ask for the password. As long as it is not equal to
+   "polytechnique", print "Wrong password ❌" and ask again.
+   When it is right, print "Access granted 🚀".
+
+Résultat attendu / Expected output:
+   Mot de passe ? fusee
+   Mot de passe incorrect ❌
+   Mot de passe ? mit
+   Mot de passe incorrect ❌
+   Mot de passe ? polytechnique
+   Accès autorisé 🚀
+
+
+--------------------------------------------------------------
+EXERCICE 3 ⭐⭐ — Le réservoir de la fusée ⛽
+EXERCISE 3 ⭐⭐ — The rocket's fuel tank ⛽
+--------------------------------------------------------------
+🇫🇷 La fusée consomme 7 litres par seconde. Elle peut voler tant
+   qu'il reste au moins 7 litres. Demande combien de litres il y
+   a au départ, puis affiche combien de secondes elle vole et
+   combien de litres il reste.
+
+🇬🇧 The rocket burns 7 liters per second. It can fly as long as
+   there are at least 7 liters left. Ask how many liters there
+   are at the start, then print how many seconds it flies and
+   how many liters are left.
+
+Résultat attendu / Expected output:
+   Carburant au départ ? 50
+   La fusée vole 7 secondes
+   Il reste 1 litres
+
+
+--------------------------------------------------------------
+EXERCICE 4 ⭐⭐⭐ — Le jeu du nombre secret 🎮
+EXERCISE 4 ⭐⭐⭐ — The secret number game 🎮
+--------------------------------------------------------------
+🇫🇷 Écris secret = 37 au début. Le joueur propose des nombres
+   jusqu'à trouver le secret. Si sa proposition est trop grande,
+   affiche « Plus petit ! ». Si elle est trop petite, affiche
+   « Plus grand ! ». Quand il trouve, affiche
+   « Trouvé en ... essais ».
+   Bonus 🎲 : remplace 37 par un nombre au hasard avec
+   import random  puis  secret = random.randint(1, 100)
+
+🇬🇧 Write secret = 37 at the start. The player guesses numbers
+   until they find the secret. If the guess is too big, print
+   "Lower!". If it is too small, print "Higher!". When the
+   player finds it, print "Found in ... tries".
+   Bonus 🎲: replace 37 with a random number using
+   import random  then  secret = random.randint(1, 100)
+
+Résultat attendu / Expected output:
+   Ton nombre ? 50
+   Plus petit !
+   Ton nombre ? 20
+   Plus grand !
+   Ton nombre ? 37
+   Trouvé en 3 essais
+
+
+--------------------------------------------------------------
+EXERCICE 5 🔥 DÉFI — Le mystère de Syracuse
+EXERCISE 5 🔥 CHALLENGE — The Collatz mystery
+--------------------------------------------------------------
+🇫🇷 Prends un nombre n. S'il est pair, divise-le par 2. S'il est
+   impair, multiplie-le par 3 et ajoute 1. Recommence tant que
+   n n'est pas égal à 1. Personne au monde n'a encore prouvé
+   qu'on arrive toujours à 1 !
+   Demande n, affiche chaque nombre de la suite (le nombre de
+   départ compris, un par ligne), puis le nombre d'étapes.
+   Essaie ensuite avec 27 😮
+
+🇬🇧 Take a number n. If it is even, divide it by 2. If it is
+   odd, multiply it by 3 and add 1. Repeat as long as n is not
+   equal to 1. Nobody in the world has proven yet that you
+   always reach 1!
+   Ask for n, print every number of the sequence (including the
+   starting number, one per line), then the number of steps.
+   Then try with 27 😮
+
+Résultat attendu / Expected output:
+   Nombre de départ ? 6
+   6
+   3
+   10
+   5
+   16
+   8
+   4
+   2
+   1
+   Arrivé à 1 en 8 étapes
+
+
+==============================================================
+  PETIT LEXIQUE / MINI GLOSSARY
+==============================================================
+  tant que ............ while
+  boucle .............. loop
+  condition ........... condition
+  variable ............ variable
+  afficher ............ to print / display
+  demander ............ to ask (input)
+  pair / impair ....... even / odd
+  supérieur ou égal ... greater than or equal (>=)
+  différent de ........ not equal to (!=)
+  boucle infinie ...... infinite loop
+  essai ............... try / attempt
+==============================================================
