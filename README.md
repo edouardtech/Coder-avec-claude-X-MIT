@@ -18,6 +18,7 @@ Entrer à **Polytechnique (l'X)** et/ou au **MIT**.
 - [ ] ⏸️ Leçon 1 (en pause, 2/5, on y reviendra) : la boucle `for` → [`lecons/01_boucle_for`](lecons/01_boucle_for) · [version interactive 🚀](https://claude.ai/artifact/9CxCHdoyqGXirhHzAaXYgP)
 - [ ] ⏳ Leçon 2 (en cours) : la boucle `while` → [`lecons/02_boucle_while`](lecons/02_boucle_while) · [version interactive 🚀](https://claude.ai/artifact/PgrerysZrprz6hQE295uaT)
 - [ ] 📓 Carnet hors ligne (Jupyter) : while + listes + chaînes → [`lecons/carnet_hors_ligne_blocs_1-2-3.ipynb`](lecons/carnet_hors_ligne_blocs_1-2-3.ipynb)
+- [ ] 📓 Carnet hors ligne n°2 (Jupyter) : fonctions + dictionnaires + 🎮 créer un jeu → [`lecons/carnet_hors_ligne_blocs_4-5-6.ipynb`](lecons/carnet_hors_ligne_blocs_4-5-6.ipynb)
 - [ ] Leçon 3 : les listes
 - [ ] Leçon 4 : les chaînes de caractères
 - [ ] Leçon 5 : les fonctions
