@@ -35,6 +35,7 @@ Entrer à **Polytechnique (l'X)** et/ou au **MIT**.
 
 ### Étape 3 — D'autres langages
 - [ ] C
+- [ ] Arduino (C/C++ pour l'électronique et les robots 🤖)
 - [ ] JavaScript
 - [ ] OCaml
 - [ ] Java
