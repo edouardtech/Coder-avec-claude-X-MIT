@@ -146,6 +146,8 @@ button.check:hover { filter: brightness(1.08); }
 .symbols { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 18px 0; align-items: center; }
 .symbols .mini { margin-right: 4px; }
 .symbols button { font-family: var(--font-mono); font-size: 0.95rem; font-weight: 600; padding: 4px 10px; min-width: 2.4em; }
+.niveau { display: flex; flex-direction: column; gap: 4px; padding-top: 12px; border-top: 2px solid var(--accent); }
+.niveau h3 { color: var(--accent); }
 .progress { font-weight: 700; padding: 10px 14px; border-radius: 10px; background: var(--paper); border: 1px solid var(--line); }
 
 .editor-box { padding: 10px 18px 0; }
@@ -307,8 +309,9 @@ Décollage !</pre>
 <section id="exos">
   <div class="part-label">Partie 7 · à toi de jouer</div>
   <h2>Exercices</h2>
+  <p><b>On monte doucement :</b> d'abord des trous à compléter, puis des erreurs à trouver, puis du code guidé, et à la fin, tout seul. Ne saute pas de niveau !</p>
   <p>Écris ton code dans le cadre sombre, puis appuie sur <b>▶ Lancer</b>. Quand tu penses avoir trouvé, appuie sur <b>✔ Vérifier ma réponse</b> : la page teste ton programme et te dit si c'est juste, et sinon ce qui ne va pas. Si tu bloques, demande un indice (il y en a 3 par exercice, du plus vague au plus précis). Après ton premier essai, le <b>mode réponse</b> 📖 te montre une solution expliquée.</p>
-  <div class="progress" id="progress" aria-live="polite">Exercices réussis : 0 / 5</div>
+  <div class="progress" id="progress" aria-live="polite">Exercices réussis : 0 / 9</div>
   <p class="mini">Astuce : la touche Tab ajoute 4 espaces, et après une ligne qui finit par <code>:</code>, la touche Entrée décale la ligne suivante toute seule.</p>
   <div id="exercises"></div>
 </section>
@@ -349,99 +352,181 @@ Décollage !</pre>
 
   const EXERCISES = [
     {
-      "id": "ex1",
+      "id": "n1",
+      "niveau": 1,
       "stars": "⭐",
-      "title": "1. Le compte à rebours, version while 🚀",
-      "text": "<p>Refais le compte à rebours de <b>10 à 1</b>, puis <code>Décollage ! 🚀</code>, mais cette fois avec une boucle <code>while</code> (pas de <code>for</code> !).</p>",
-      "expected": "10\n9\n8\n...\n1\nDécollage ! 🚀",
+      "title": "1. Compter de 1 à 5",
+      "text": "<p>Le code est presque fini : remplace les <code>___</code> pour afficher les nombres de <b>1 à 5</b>, puis <code>Fini !</code>.</p>",
+      "start": "nombre = 1\nwhile nombre ___ 5:\n    print(nombre)\n    nombre = nombre + ___\nprint(\"Fini !\")\n",
+      "expected": "1\n2\n3\n4\n5\nFini !",
       "hints": [
-        "Il te faut les 3 ingrédients : une variable créée avant la boucle, une condition après while, et une ligne qui modifie la variable dans la boucle.",
-        "Crée compte = 10 avant la boucle. La boucle tourne tant que compte est plus grand que 0.",
-        "Dans la boucle : affiche compte, puis enlève-lui 1. Le Décollage s'affiche après la boucle, sans décalage."
+        "Le premier trou est une condition : on veut continuer tant que nombre est plus petit OU ÉGAL à 5.",
+        "« Plus petit ou égal » s'écrit <= en Python.",
+        "Le deuxième trou : à chaque tour, nombre augmente de 1."
       ],
-      "solution": "compte = 10\nwhile compte > 0:\n    print(compte)\n    compte = compte - 1\nprint(\"Décollage ! 🚀\")",
+      "solution": "nombre = 1\nwhile nombre <= 5:\n    print(nombre)\n    nombre = nombre + 1\nprint(\"Fini !\")",
       "explain": [
-        "compte = 10 : la variable est créée avant la boucle (ingrédient 1).",
-        "while compte > 0 : on refait un tour tant que compte est plus grand que 0 (ingrédient 2).",
-        "compte = compte - 1 : compte diminue à chaque tour, donc la boucle finit par s'arrêter (ingrédient 3).",
-        "Quand compte vaut 0, la condition est fausse : on sort et on affiche le décollage."
+        "nombre <= 5 : on continue tant que nombre ne dépasse pas 5.",
+        "nombre + 1 : nombre augmente de 1 à chaque tour, donc la boucle finit par s'arrêter."
       ]
     },
     {
-      "id": "ex2",
+      "id": "n2",
+      "niveau": 1,
       "stars": "⭐",
-      "title": "2. Le mot de passe du centre de contrôle 🔐",
-      "text": "<p>Demande le mot de passe. Tant qu'il n'est pas égal à <code>polytechnique</code>, affiche <code>Mot de passe incorrect ❌</code> et redemande-le. Quand il est bon, affiche <code>Accès autorisé 🚀</code>.</p>",
-      "expected": "Mot de passe ? fusee\nMot de passe incorrect ❌\nMot de passe ? mit\nMot de passe incorrect ❌\nMot de passe ? polytechnique\nAccès autorisé 🚀",
+      "title": "2. Le compte à rebours de 5 à 1 🚀",
+      "text": "<p>Remplace les <code>___</code> pour afficher <b>5, 4, 3, 2, 1</b>, puis <code>Décollage ! 🚀</code>.</p>",
+      "start": "compte = ___\nwhile compte > ___:\n    print(compte)\n    compte = ___\nprint(\"Décollage ! 🚀\")\n",
+      "expected": "5\n4\n3\n2\n1\nDécollage ! 🚀",
       "hints": [
-        "Demande le mot de passe une première fois, avant la boucle.",
-        "La boucle tourne tant que la réponse est différente de \"polytechnique\". En Python, « différent de » s'écrit !=",
-        "Dans la boucle, il y a 2 choses : afficher Mot de passe incorrect ❌, puis redemander le mot de passe avec input(). Accès autorisé s'affiche après la boucle."
+        "Le compte commence à 5.",
+        "On continue tant que compte est plus grand que 0 (le dernier nombre affiché est alors 1).",
+        "Le dernier trou : compte diminue de 1, donc compte = compte - 1."
+      ],
+      "solution": "compte = 5\nwhile compte > 0:\n    print(compte)\n    compte = compte - 1\nprint(\"Décollage ! 🚀\")",
+      "explain": [
+        "compte = 5 : on part de 5.",
+        "while compte > 0 : quand compte vaut 0, on s'arrête.",
+        "compte = compte - 1 : compte diminue à chaque tour."
+      ]
+    },
+    {
+      "id": "n3",
+      "niveau": 1,
+      "stars": "⭐",
+      "title": "3. Le mot de passe 🔐",
+      "text": "<p>Remplace les <code>___</code> : tant que le mot de passe n'est pas <code>polytechnique</code>, on affiche <code>Mot de passe incorrect ❌</code> et on le redemande.</p>",
+      "start": "reponse = input(\"Mot de passe ? \")\nwhile reponse ___ \"polytechnique\":\n    print(\"Mot de passe incorrect ❌\")\n    reponse = ___(\"Mot de passe ? \")\nprint(\"Accès autorisé 🚀\")\n",
+      "expected": "Mot de passe ? fusee\nMot de passe incorrect ❌\nMot de passe ? polytechnique\nAccès autorisé 🚀",
+      "hints": [
+        "Le premier trou : on reste dans la boucle tant que la réponse est DIFFÉRENTE du bon mot de passe.",
+        "« Différent de » s'écrit != en Python.",
+        "Le deuxième trou : on redemande le mot de passe avec la même fonction qu'à la première ligne."
       ],
       "solution": "reponse = input(\"Mot de passe ? \")\nwhile reponse != \"polytechnique\":\n    print(\"Mot de passe incorrect ❌\")\n    reponse = input(\"Mot de passe ? \")\nprint(\"Accès autorisé 🚀\")",
       "explain": [
-        "On demande une première fois avant la boucle, pour que reponse existe.",
-        "while reponse != \"polytechnique\" : on reste dans la boucle tant que c'est faux.",
-        "Dans la boucle, on prévient puis on redemande : c'est le nouvel input qui peut faire sortir de la boucle.",
-        "Si le premier mot de passe est bon, on ne rentre même pas dans la boucle !"
+        "!= veut dire « différent de ».",
+        "input redemande le mot de passe : c'est cette nouvelle réponse qui peut faire sortir de la boucle.",
+        "if ne vérifie qu'une seule fois. while vérifie à chaque tour : c'est pour ça qu'on peut redemander."
       ]
     },
     {
-      "id": "ex3",
+      "id": "n4",
+      "niveau": 2,
       "stars": "⭐⭐",
-      "title": "3. Le réservoir de la fusée ⛽",
-      "text": "<p>La fusée consomme <b>7 litres par seconde</b>. Elle peut voler tant qu'il reste <b>au moins 7 litres</b>. Demande combien de litres il y a au départ, puis affiche combien de secondes elle vole et combien de litres il reste.</p>",
+      "title": "4. La boucle qui ne s'arrête jamais 🔁",
+      "text": "<p>Ce code devrait afficher <b>3, 2, 1</b> puis <code>Décollage !</code>… mais il tourne à l'infini ! Appuie sur ▶ Lancer pour voir, puis <b>corrige-le</b> en ajoutant <b>une seule ligne</b>.</p>",
+      "start": "compte = 3\nwhile compte > 0:\n    print(compte)\nprint(\"Décollage !\")\n",
+      "expected": "3\n2\n1\nDécollage !",
+      "hints": [
+        "Relis les 3 ingrédients d'une boucle while dans le cours. Lequel manque ?",
+        "La variable compte ne change jamais : elle vaut toujours 3, donc compte > 0 est toujours vrai.",
+        "Ajoute compte = compte - 1 dans la boucle, juste sous le print (avec le même décalage)."
+      ],
+      "solution": "compte = 3\nwhile compte > 0:\n    print(compte)\n    compte = compte - 1\nprint(\"Décollage !\")",
+      "explain": [
+        "Il manquait l'ingrédient n°3 : la ligne qui change la variable.",
+        "La nouvelle ligne est décalée comme le print : elle fait partie de la boucle."
+      ]
+    },
+    {
+      "id": "n5",
+      "niveau": 2,
+      "stars": "⭐⭐",
+      "title": "5. Les nombres impairs 🐛",
+      "text": "<p>Ce code devrait afficher les nombres impairs <b>1, 3, 5, 7, 9</b>. Mais il affiche 3, 5, 7, 9, 11 ! Lance-le, trouve le bug et corrige-le <b>sans ajouter de ligne</b>.</p>",
+      "start": "nombre = 1\nwhile nombre < 10:\n    nombre = nombre + 2\n    print(nombre)\n",
+      "expected": "1\n3\n5\n7\n9",
+      "hints": [
+        "Utilise la boucle au ralenti (partie 3) dans ta tête : au premier tour, nombre vaut 1. Que se passe-t-il avant le print ?",
+        "nombre augmente AVANT d'être affiché : le 1 n'est jamais affiché.",
+        "Inverse l'ordre des deux lignes dans la boucle : d'abord print, ensuite + 2."
+      ],
+      "solution": "nombre = 1\nwhile nombre < 10:\n    print(nombre)\n    nombre = nombre + 2",
+      "explain": [
+        "On affiche d'abord, puis on passe au nombre suivant.",
+        "L'ordre des lignes dans une boucle compte énormément !"
+      ]
+    },
+    {
+      "id": "n6",
+      "niveau": 3,
+      "stars": "⭐⭐",
+      "title": "6. Le réservoir de la fusée ⛽",
+      "text": "<p>La fusée consomme <b>7 litres par seconde</b> et vole tant qu'il reste <b>au moins 7 litres</b>. Écris le code <b>sous chaque commentaire</b> (les lignes qui commencent par #).</p>",
+      "start": "# 1. Demande le carburant au départ (avec int et input)\n\n# 2. Crée une variable secondes qui vaut 0\n\n# 3. Tant que le carburant est au moins 7 (>=) :\n#        enlève 7 au carburant\n#        ajoute 1 aux secondes\n\n# 4. Affiche les secondes, puis le carburant qui reste\n\n",
       "expected": "Carburant au départ ? 50\nLa fusée vole 7 secondes\nIl reste 1 litres",
       "hints": [
-        "Il te faut 2 variables : carburant (le nombre tapé, avec int) et secondes, qui commence à 0.",
-        "La boucle tourne tant que carburant est supérieur ou égal à 7. « Supérieur ou égal » s'écrit >=",
-        "À chaque tour : enlève 7 au carburant et ajoute 1 aux secondes. Les deux print sont après la boucle."
+        "Étape 1 : carburant = int(input(\"Carburant au départ ? \"))",
+        "Étape 3 : while carburant >= 7: puis, décalées dessous, carburant = carburant - 7 et secondes = secondes + 1.",
+        "Étape 4 (pas décalée) : print(\"La fusée vole\", secondes, \"secondes\") et print(\"Il reste\", carburant, \"litres\")."
       ],
       "solution": "carburant = int(input(\"Carburant au départ ? \"))\nsecondes = 0\nwhile carburant >= 7:\n    carburant = carburant - 7\n    secondes = secondes + 1\nprint(\"La fusée vole\", secondes, \"secondes\")\nprint(\"Il reste\", carburant, \"litres\")",
       "explain": [
-        "int(...) transforme le texte tapé en nombre.",
-        "secondes = 0 : on compte les secondes, comme un accumulateur.",
-        "while carburant >= 7 : on vole tant qu'il reste au moins 7 litres (>= et pas >, sinon avec 7 litres pile la fusée ne décollerait pas).",
-        "À chaque tour, la fusée brûle 7 litres et vole 1 seconde de plus."
+        "Chaque commentaire devient une ou deux lignes de code.",
+        ">= 7 et pas > 7 : avec 7 litres pile, la fusée peut encore voler 1 seconde.",
+        "Les print sont après la boucle : on affiche le résultat une seule fois."
       ]
     },
     {
-      "id": "ex4",
+      "id": "n7",
+      "niveau": 3,
       "stars": "⭐⭐⭐",
-      "title": "4. Le jeu du nombre secret 🎮",
-      "text": "<p>Écris <code>secret = 37</code> au début. Le joueur propose des nombres jusqu'à trouver le secret. Si sa proposition est trop grande, affiche <code>Plus petit !</code>. Si elle est trop petite, affiche <code>Plus grand !</code>. Quand il trouve, affiche <code>Trouvé en … essais</code>.</p><p><b>Bonus 🎲</b> : une fois que ça marche, remplace 37 par un nombre au hasard avec <code>import random</code> puis <code>secret = random.randint(1, 100)</code>, et joue ! (Pour la vérification, remets 37.)</p>",
+      "title": "7. La somme de 1 à n ➕",
+      "text": "<p>Demande un nombre <code>n</code>, puis calcule <b>1 + 2 + … + n</b> avec une boucle while. Écris le code sous chaque commentaire.</p>",
+      "start": "# 1. Demande n (avec int et input)\n\n# 2. Crée total = 0 et i = 1\n\n# 3. Tant que i est plus petit ou égal à n :\n#        ajoute i au total\n#        augmente i de 1\n\n# 4. Affiche le total\n\n",
+      "expected": "n ? 4\nLa somme vaut 10",
+      "hints": [
+        "Étape 1 : n = int(input(\"n ? \")). Étape 2 : deux lignes, total = 0 et i = 1.",
+        "Étape 3 : while i <= n: puis, décalées dessous, total = total + i et i = i + 1.",
+        "Étape 4 : print(\"La somme vaut\", total), sans décalage."
+      ],
+      "solution": "n = int(input(\"n ? \"))\ntotal = 0\ni = 1\nwhile i <= n:\n    total = total + i\n    i = i + 1\nprint(\"La somme vaut\", total)",
+      "explain": [
+        "total commence à 0 : c'est l'accumulateur.",
+        "i va de 1 à n : à chaque tour, on l'ajoute au total.",
+        "Avec n = 4 : 1 + 2 + 3 + 4 = 10."
+      ]
+    },
+    {
+      "id": "n8",
+      "niveau": 4,
+      "stars": "⭐⭐⭐",
+      "title": "8. Le jeu du nombre secret 🎮",
+      "text": "<p>Maintenant, tout seul ! Écris <code>secret = 37</code> au début. Le joueur propose des nombres jusqu'à trouver. Trop grand → <code>Plus petit !</code>. Trop petit → <code>Plus grand !</code>. Quand il trouve → <code>Trouvé en … essais</code>.</p><p>💡 Attention : c'est la <b>proposition du joueur</b> (son input) qu'on compare au secret, pas le secret lui-même !</p>",
+      "start": "",
       "expected": "Ton nombre ? 50\nPlus petit !\nTon nombre ? 20\nPlus grand !\nTon nombre ? 37\nTrouvé en 3 essais",
       "hints": [
-        "Il te faut : secret = 37, une variable essais, et la proposition du joueur. Tu peux demander la première proposition avant la boucle (comme dans l'exercice 2).",
-        "La boucle tourne tant que la proposition est différente du secret. Dans la boucle, utilise if / else pour afficher Plus petit ! ou Plus grand !, puis redemande un nombre.",
-        "Ajoute 1 à essais à chaque input(). Attention : le premier input, avant la boucle, compte aussi ! Et n'oublie pas int(...) autour de input()."
+        "C'est comme l'exercice 3 (le mot de passe) : on demande une première proposition AVANT la boucle, avec int(input(...)), et essais = 1.",
+        "La boucle tourne tant que proposition != secret. Dedans : un if proposition > secret: … else: … pour afficher Plus petit ! ou Plus grand !",
+        "Toujours dans la boucle, après le if/else : on redemande une proposition et on ajoute 1 à essais. Le message « Trouvé » est après la boucle."
       ],
       "solution": "secret = 37\nproposition = int(input(\"Ton nombre ? \"))\nessais = 1\nwhile proposition != secret:\n    if proposition > secret:\n        print(\"Plus petit !\")\n    else:\n        print(\"Plus grand !\")\n    proposition = int(input(\"Ton nombre ? \"))\n    essais = essais + 1\nprint(\"Trouvé en\", essais, \"essais 🎉\")",
       "explain": [
-        "On demande un premier nombre avant la boucle, et essais vaut déjà 1.",
-        "while proposition != secret : le jeu continue tant que ce n'est pas trouvé.",
-        "Si la proposition est plus grande que le secret, le secret est plus petit : on l'affiche.",
-        "On redemande un nombre et on compte un essai de plus. Quand c'est trouvé, on sort de la boucle."
+        "Même schéma que le mot de passe : une question avant la boucle, puis on redemande dans la boucle.",
+        "Le if/else est décalé une fois (dans le while), ses print deux fois.",
+        "On compare toujours la proposition au secret."
       ]
     },
     {
-      "id": "ex5",
+      "id": "n9",
+      "niveau": 4,
       "stars": "🔥 Défi",
       "defi": true,
-      "title": "5. Le mystère de Syracuse",
-      "text": "<p>Un vrai mystère des mathématiques ! Prends un nombre <code>n</code>. S'il est <b>pair</b>, divise-le par 2. S'il est <b>impair</b>, multiplie-le par 3 et ajoute 1. Recommence <b>tant que</b> n n'est pas égal à 1.</p><p>Personne au monde n'a encore prouvé qu'on arrive toujours à 1 ! Demande <code>n</code>, affiche chaque nombre de la suite (le nombre de départ compris, un par ligne), puis le nombre d'étapes. Essaie ensuite avec 27 : tu vas être surpris 😮</p>",
+      "title": "9. Le mystère de Syracuse",
+      "text": "<p>Prends un nombre <code>n</code>. S'il est <b>pair</b>, divise-le par 2 (avec <code>//</code>). S'il est <b>impair</b>, multiplie-le par 3 et ajoute 1. Recommence <b>tant que</b> n n'est pas égal à 1. Affiche chaque nombre (le départ compris), puis le nombre d'étapes. Personne au monde n'a prouvé qu'on arrive toujours à 1 !</p>",
+      "start": "",
       "expected": "Nombre de départ ? 6\n6\n3\n10\n5\n16\n8\n4\n2\n1\nArrivé à 1 en 8 étapes",
       "hints": [
-        "Pour savoir si n est pair : n % 2 == 0. Pour diviser sans virgule, utilise // : 10 // 2 donne 5 (et pas 5.0).",
-        "Affiche n une première fois avant la boucle. La boucle tourne tant que n est différent de 1. Dans la boucle, calcule le nouveau n avec if / else, puis affiche-le.",
-        "Pour compter les étapes, crée etapes = 0 avant la boucle et ajoute 1 à chaque tour. Le message final est après la boucle."
+        "n % 2 == 0 teste si n est pair. n // 2 divise sans virgule.",
+        "Affiche n avant la boucle. while n != 1: puis un if/else pour calculer le nouveau n, et print(n).",
+        "etapes = 0 avant la boucle, +1 à chaque tour, et le message final après la boucle."
       ],
       "solution": "n = int(input(\"Nombre de départ ? \"))\netapes = 0\nprint(n)\nwhile n != 1:\n    if n % 2 == 0:\n        n = n // 2\n    else:\n        n = 3 * n + 1\n    print(n)\n    etapes = etapes + 1\nprint(\"Arrivé à 1 en\", etapes, \"étapes\")",
       "explain": [
-        "On affiche le nombre de départ avant la boucle.",
-        "while n != 1 : on continue tant qu'on n'est pas arrivé à 1.",
-        "n % 2 == 0 teste si n est pair. n // 2 divise sans virgule.",
-        "À chaque tour, on affiche le nouveau n et on compte une étape."
+        "On affiche le départ avant la boucle.",
+        "n % 2 == 0 : pair. n // 2 : division sans virgule.",
+        "Chaque tour affiche le nouveau n et compte une étape."
       ]
     }
   ]
@@ -543,80 +628,85 @@ Décollage !</pre>
   const lastNum = (out) => { const n = num(out); return n.length ? n[n.length - 1] : null; };
 
   const needWhile = (code) => /\bwhile\b/.test(code) ? null : "Cet exercice doit utiliser une boucle while. Je n'en vois pas dans ton code.";
+  function suite(out, want, mot, montre) {
+    const lines = linesOf(out).map(l => l.trim()).filter(l => l);
+    const nums = lines.filter(l => /^-?\d+$/.test(l)).map(Number);
+    if (!nums.length) return "Je ne vois pas les nombres " + want.join(", ") + " (un par ligne).";
+    if (nums.join() !== want.join()) {
+      if (nums[0] !== want[0]) return "Ton programme doit commencer par " + want[0] + ", et il commence par " + nums[0] + ".";
+      if (nums.length === want.length + 1) return "Ton programme affiche un nombre de trop (" + nums[nums.length - 1] + "). Regarde ta condition : < ou <= ? > ou >= ?";
+      if (nums.length === want.length - 1) return "Il manque le dernier nombre (" + want[want.length - 1] + "). Regarde ta condition : < ou <= ? > ou >= ?";
+      return "J'attendais " + want.join(", ") + " et ton programme affiche " + nums.join(", ") + ".";
+    }
+    if (!mot) return null;
+    const fin = lines.filter(l => plain(l).includes(mot));
+    if (!fin.length) return "Les nombres sont parfaits 👏 Il manque « " + montre + " » à la fin.";
+    if (fin.length > 1) return "« " + montre + " » s'affiche " + fin.length + " fois : ce print est dans la boucle. Enlève son décalage.";
+    return null;
+  }
   const CHECKS = {
-    ex1: { tests: [[]], judge(out, inp, used, code) {
-      const w = needWhile(code); if (w) return w;
-      const lines = linesOf(out).map(l => l.trim()).filter(l => l);
-      const nums = lines.filter(l => /^-?\d+$/.test(l)).map(Number);
-      const want = [10,9,8,7,6,5,4,3,2,1];
-      if (!nums.length) return "Je ne vois pas les nombres de 10 à 1, un par ligne.";
-      if (nums.join() !== want.join()) {
-        if (nums[0] === 9) return "Ton compte à rebours commence à 9 au lieu de 10 : as-tu enlevé 1 avant le print ? Essaie d'afficher d'abord, puis d'enlever 1.";
-        if (nums[0] !== 10) return "Ton compte à rebours doit commencer à 10, et le tien commence à " + nums[0] + ".";
-        if (nums[nums.length - 1] === 0) return "Ton compte à rebours va jusqu'à 0. Il doit s'arrêter à 1 : regarde ta condition.";
-        if (nums[nums.length - 1] === 2) return "Ton compte à rebours s'arrête à 2. Il doit aller jusqu'à 1 : regarde ta condition (> ou >= ?).";
-        return "J'attendais 10, 9, 8 … 1 et ton programme affiche : " + nums.join(", ") + ".";
-      }
-      const deco = lines.filter(l => plain(l).includes("decollage"));
-      if (!deco.length) return "Les nombres sont parfaits 👏 Il manque juste « Décollage ! 🚀 » à la fin.";
-      if (deco.length > 1) return "« Décollage » s'affiche " + deco.length + " fois. Il doit s'afficher une seule fois, après la boucle : enlève le décalage.";
-      if (!plain(lines[lines.length - 1]).includes("decollage")) return "« Décollage » doit s'afficher à la fin, après le 1.";
-      return null;
-    }},
-    ex2: { tests: [["fusee", "mit", "polytechnique"], ["polytechnique"], ["Polytechnique", "polytechnique"]], judge(out, inp, used, code) {
+    n1: { tests: [[]], judge: (out, inp, used, code) => needWhile(code) || suite(out, [1, 2, 3, 4, 5], "fini", "Fini !") },
+    n2: { tests: [[]], judge: (out, inp, used, code) => needWhile(code) || suite(out, [5, 4, 3, 2, 1], "decollage", "Décollage ! 🚀") },
+    n3: { tests: [["fusee", "mit", "polytechnique"], ["polytechnique"]], judge(out, inp, used, code) {
       const w = needWhile(code); if (w) return w;
       const L = linesOf(out).map(plain);
-      const bad = L.filter(l => l.includes("incorrect")).length;
-      const ok = L.filter(l => l.includes("autoris")).length;
+      const bad = L.filter(l => l.includes("incorrect")).length, ok = L.filter(l => l.includes("autoris")).length;
       const shown = inp.map(x => "« " + x + " »").join(" puis ");
-      if (used < inp.length) return "Avec " + shown + ", ton programme s'arrête trop tôt : il n'a demandé le mot de passe que " + used + " fois.";
-      if (!ok) return "Avec " + shown + ", je ne vois pas « Accès autorisé 🚀 » à la fin.";
-      if (ok > 1) return "« Accès autorisé » s'affiche plusieurs fois. Il doit s'afficher une seule fois, après la boucle.";
+      if (used < inp.length) return "Avec " + shown + ", ton programme s'arrête trop tôt : il ne redemande pas le mot de passe.";
+      if (ok !== 1) return "« Accès autorisé 🚀 » doit s'afficher une seule fois, à la fin.";
       if (bad !== inp.length - 1) return "Avec " + shown + ", « Mot de passe incorrect ❌ » devrait s'afficher " + (inp.length - 1) + " fois, et il s'affiche " + bad + " fois.";
-      if (!L[L.length - 1].includes("autoris")) return "« Accès autorisé » doit être la dernière chose affichée.";
       return null;
     }},
-    ex3: { tests: [["50"], ["7"], ["3"], ["100"]], judge(out, inp, used, code) {
+    n4: { tests: [[]], judge: (out, inp, used, code) => needWhile(code) || suite(out, [3, 2, 1], "decollage", "Décollage !") },
+    n5: { tests: [[]], judge(out, inp, used, code) {
+      const w = needWhile(code); if (w) return w;
+      if (code.split("\n").filter(l => l.trim()).length > 4) return "Ce bug se corrige sans ajouter de ligne : il suffit de changer l'ordre de deux lignes 😉";
+      return suite(out, [1, 3, 5, 7, 9], null, null);
+    }},
+    n6: { tests: [["50"], ["7"], ["3"], ["100"]], judge(out, inp, used, code) {
       const w = needWhile(code); if (w) return w;
       const c = Number(inp[0]); const ws = Math.floor(c / 7), wr = c % 7;
       const nl = numberLines(out);
       if (!nl.length) return "Avec " + c + " litres, ton programme n'affiche aucun nombre.";
-      if (nl.length > 2) return "Ton programme affiche beaucoup de lignes avec des nombres. Les print du résultat doivent être après la boucle, sans décalage.";
+      if (nl.length > 2) return "Ton programme affiche beaucoup de lignes avec des nombres. Les print de l'étape 4 doivent être APRÈS la boucle, sans décalage.";
       const nums = nl.flatMap(num);
       if (nums.includes(ws) && nums.includes(wr) && (ws !== wr || nums.filter(x => x === ws).length >= 2)) return null;
-      if (c === 7 && nums.includes(0) && nums.includes(7)) return "Avec 7 litres pile, la fusée peut voler 1 seconde (il reste au moins 7 litres). « Au moins 7 », c'est >= et pas >.";
-      return "Avec " + c + " litres, la fusée vole " + ws + " seconde(s) et il reste " + wr + " litre(s). Ton programme affiche les nombres : " + nums.join(", ") + ".";
+      if (c === 7 && nums.includes(0) && nums.includes(7)) return "Avec 7 litres pile, la fusée peut voler 1 seconde. « Au moins 7 », c'est >= et pas >.";
+      return "Avec " + c + " litres, la fusée vole " + ws + " seconde(s) et il reste " + wr + " litre(s). Ton programme affiche : " + nums.join(", ") + ".";
     }},
-    ex4: { tests: [["50", "20", "37"], ["37"], ["40", "30", "36", "38", "37"]], judge(out, inp, used, code) {
+    n7: { tests: [["4"], ["1"], ["10"]], judge(out, inp, used, code) {
       const w = needWhile(code); if (w) return w;
-      if (!/secret\s*=\s*37/.test(code)) return "Pour la vérification, écris secret = 37 au début de ton programme.";
+      const n = Number(inp[0]), want = n * (n + 1) / 2, got = lastNum(out);
+      if (numberLines(out).length > 1) return "Ton programme affiche plusieurs nombres. Le print du total doit être APRÈS la boucle, sans décalage.";
+      if (got === want) return null;
+      if (got === want - n) return "Avec n = " + n + ", tu trouves " + got + " au lieu de " + want + " : il manque le dernier nombre. La condition doit être i <= n (et pas i < n).";
+      return "Avec n = " + n + ", la somme vaut " + want + " et ton programme affiche " + got + ".";
+    }},
+    n8: { tests: [["50", "20", "37"], ["37"], ["40", "30", "36", "38", "37"]], judge(out, inp, used, code) {
+      const w = needWhile(code); if (w) return w;
+      if (!/secret\s*=\s*37/.test(code)) return "Écris secret = 37 au début de ton programme.";
+      if (!/input/.test(code)) return "Le joueur doit proposer des nombres avec input(). C'est sa proposition qu'on compare au secret.";
       const seq = linesOf(out).map(plain).filter(l => l.includes("plus petit") || l.includes("plus grand")).map(l => l.includes("plus petit") ? "P" : "G");
       const want = inp.slice(0, -1).map(x => Number(x) > 37 ? "P" : "G");
       if (used < inp.length) return "Avec les propositions " + inp.join(", ") + ", ton programme s'arrête avant que le joueur ait trouvé.";
-      for (let i = 0; i < want.length; i++) {
-        if (seq[i] !== want[i]) return "Quand le joueur propose " + inp[i] + ", le secret (37) est " + (want[i] === "P" ? "plus petit" : "plus grand") + " : il faut afficher « " + (want[i] === "P" ? "Plus petit !" : "Plus grand !") + " »" + (seq[i] ? ", et ton programme affiche l'inverse." : ".");
-      }
+      for (let i = 0; i < want.length; i++)
+        if (seq[i] !== want[i]) return "Quand le joueur propose " + inp[i] + ", le secret (37) est " + (want[i] === "P" ? "plus petit" : "plus grand") + " : il faut afficher « " + (want[i] === "P" ? "Plus petit !" : "Plus grand !") + " ».";
       if (seq.length > want.length) return "Ton programme affiche « Plus petit » ou « Plus grand » même quand le joueur a trouvé.";
       const got = lastNum(out);
-      if (got !== inp.length) return got === inp.length - 1
-        ? "Ton compteur oublie un essai : as-tu compté le tout premier nombre proposé ?"
-        : "Avec " + inp.length + " propositions, il faut afficher « Trouvé en " + inp.length + " essais », et ton programme affiche " + got + ".";
+      if (got !== inp.length) return got === inp.length - 1 ? "Ton compteur oublie un essai : le premier nombre proposé compte aussi !" : "Avec " + inp.length + " propositions, il faut afficher « Trouvé en " + inp.length + " essais ».";
       return null;
     }},
-    ex5: { tests: [["6"], ["1"], ["27"]], judge(out, inp, used, code) {
+    n9: { tests: [["6"], ["1"], ["27"]], judge(out, inp, used, code) {
       const w = needWhile(code); if (w) return w;
       let n = Number(inp[0]); const seq = [n]; while (n !== 1) { n = n % 2 === 0 ? n / 2 : 3 * n + 1; seq.push(n); }
       if (/\d\.0\b/.test(out)) return "Je vois des nombres avec « .0 » : utilise // au lieu de / pour diviser sans virgule.";
       const got = linesOf(out).map(l => l.trim()).filter(l => /^-?\d+$/.test(l)).map(Number);
-      const start = inp[0];
       if (got.join() !== seq.join()) {
-        if (got.join() === seq.slice(1).join()) return "Avec " + start + ", il manque le nombre de départ au début : affiche-le avant la boucle.";
-        if (got.join() === seq.slice(0, -1).join()) return "Avec " + start + ", la suite doit se terminer par 1. Affiche-le aussi.";
+        if (got.join() === seq.slice(1).join()) return "Avec " + inp[0] + ", il manque le nombre de départ : affiche-le avant la boucle.";
         const k = got.findIndex((x, i) => x !== seq[i]);
-        return "Avec " + start + ", le nombre n°" + (k + 1) + " devrait être " + seq[k] + (got[k] !== undefined ? " et ton programme affiche " + got[k] : "") + ".";
+        return "Avec " + inp[0] + ", le nombre n°" + (k < 0 ? got.length + 1 : k + 1) + " devrait être " + seq[k < 0 ? got.length : k] + ".";
       }
-      const steps = seq.length - 1;
-      if (lastNum(out) !== steps) return "La suite est parfaite 👏 Avec " + start + ", il faut " + steps + " étapes, et ton programme affiche " + lastNum(out) + " à la fin.";
+      if (lastNum(out) !== seq.length - 1) return "La suite est parfaite 👏 Avec " + inp[0] + ", il y a " + (seq.length - 1) + " étapes.";
       return null;
     }},
   };
@@ -706,7 +796,8 @@ Décollage !</pre>
     if (running) return;
     if (typeof Sk === "undefined") { fb.hidden = false; fb.className = "feedback ko"; fb.textContent = "Le moteur Python ne s'est pas chargé. Recharge la page."; return; }
     ta.value = cleanCode(ta.value);
-    if (!ta.value.trim()) { fb.hidden = false; fb.className = "feedback ko"; fb.textContent = "Écris d'abord ton code dans le cadre sombre 🙂"; return; }
+    if (/___/.test(ta.value)) { fb.hidden = false; fb.className = "feedback ko"; fb.textContent = "Il reste des trous ___ à remplir : remplace chaque ___ par le bon code 🙂"; markTried(item.id); return; }
+    if (!ta.value.split("\n").some(l => l.trim() && !l.trim().startsWith("#"))) { fb.hidden = false; fb.className = "feedback ko"; fb.textContent = "Écris d'abord ton code dans le cadre sombre 🙂"; return; }
     running = true;
     document.querySelectorAll("button.run, button.check").forEach(b => b.disabled = true);
     fb.hidden = false; fb.className = "feedback"; fb.textContent = "Je vérifie ton programme…";
@@ -843,7 +934,8 @@ Décollage !</pre>
     ta.setAttribute("aria-label", "Code de " + item.title);
     if (isExercise) {
       ta.placeholder = "# Écris ton code ici";
-      ta.value = lsGet(item.id) || "";
+      ta.value = lsGet(item.id) || item.start || "";
+      if (item.start) ta.style.minHeight = (item.start.split("\n").length * 1.6 + 2) + "em";
     } else {
       ta.value = item.code;
       ta.style.minHeight = (item.code.split("\n").length * 1.6 + 2) + "em";
@@ -870,6 +962,11 @@ Décollage !</pre>
     bar.appendChild(run);
     let checkBtn = null;
     if (isExercise) { checkBtn = document.createElement("button"); checkBtn.className = "check"; checkBtn.textContent = "✔ Vérifier ma réponse"; bar.appendChild(checkBtn); }
+    if (isExercise && item.start) {
+      const r0 = document.createElement("button"); r0.textContent = "Recommencer";
+      r0.addEventListener("click", () => { ta.value = item.start; ta.dispatchEvent(new Event("input")); });
+      bar.appendChild(r0);
+    }
     if (!isExercise) {
       const reset = document.createElement("button"); reset.textContent = "Remettre l'exemple";
       reset.addEventListener("click", () => { ta.value = item.code; });
@@ -906,7 +1003,18 @@ Décollage !</pre>
   EXAMPLES.forEach(e => exWrap.appendChild(buildLab(e, false)));
   exWrap.style.display = "flex"; exWrap.style.flexDirection = "column"; exWrap.style.gap = "16px";
   const exoWrap = document.getElementById("exercises");
-  EXERCISES.forEach(e => exoWrap.appendChild(buildLab(e, true)));
+  const NIVEAUX = {"1": ["Niveau 1 · Complète les trous", "Le code est presque écrit : remplace chaque ___ par ce qui manque."], "2": ["Niveau 2 · Trouve l'erreur", "Le code est écrit, mais il a un bug. Lance-le, observe, et corrige-le."], "3": ["Niveau 3 · Code guidé", "Les étapes sont écrites en commentaires (#). Écris le code sous chaque étape."], "4": ["Niveau 4 · Tout seul", "À toi de tout écrire ! Les indices sont toujours là si tu bloques."]};
+  let nivCourant = null;
+  EXERCISES.forEach(e => {
+    if (e.niveau !== nivCourant) {
+      nivCourant = e.niveau;
+      const h = document.createElement("div"); h.className = "niveau";
+      const t = document.createElement("h3"); t.textContent = NIVEAUX[e.niveau][0];
+      const p = document.createElement("p"); p.className = "mini"; p.textContent = NIVEAUX[e.niveau][1];
+      h.append(t, p); exoWrap.appendChild(h);
+    }
+    exoWrap.appendChild(buildLab(e, true));
+  });
   exoWrap.style.display = "flex"; exoWrap.style.flexDirection = "column"; exoWrap.style.gap = "20px";
 
   // ---------- Boucle au ralenti ----------
