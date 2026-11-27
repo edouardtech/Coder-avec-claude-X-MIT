@@ -35,7 +35,8 @@ Entrer à **Polytechnique (l'X)** et/ou au **MIT**.
 
 ### Étape 3 — D'autres langages
 - [ ] C
-- [ ] Arduino (C/C++ pour l'électronique et les robots 🤖)
+- [ ] ⏳ Arduino (C/C++ pour l'électronique et les robots 🤖)
+  - [ ] Leçon 1 : allumer des LED → [`lecons/arduino_01_led`](lecons/arduino_01_led) · [version interactive 🤖](https://claude.ai/artifact/61nkZPADg8DeYGLrkDXQTe)
 - [ ] JavaScript
 - [ ] OCaml
 - [ ] Java

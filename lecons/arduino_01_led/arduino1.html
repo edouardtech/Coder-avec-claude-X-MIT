@@ -1,0 +1,902 @@
+<title>Arduino · Leçon 1 · Les LED</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout : un carnet d'atelier électronique. Une colonne de lecture ;
+   chaque exercice = un banc d'essai (éditeur + LED simulées + moniteur série). */
+:root {
+  --bg: #f1f6f6;
+  --paper: #ffffff;
+  --ink: #132a2e;
+  --muted: #557075;
+  --line: #d3e2e3;
+  --accent: #00808a;
+  --accent-soft: #dcf0f1;
+  --flame: #cf5a1a;
+  --flame-soft: #fbe7da;
+  --ok: #16804a;
+  --ok-soft: #dbf2e5;
+  --err: #b4232f;
+  --err-soft: #fbe3e5;
+  --code-bg: #0e1f24;
+  --code-ink: #e2f1f1;
+  --code-kw: #ff9e64;
+  --code-fn: #7fdbe4;
+  --code-str: #a6e3a1;
+  --code-num: #f9d36b;
+  --code-com: #7f9da2;
+  --board: #0b5d7a;
+  --board-ink: #e6f6fb;
+  --led-off: #3a4a4d;
+  --led-13: #ffb020;
+  --led-2: #2ee06b;
+  --led-3: #ffb020;
+  --led-4: #ff3b3b;
+  --led-5: #3b8cff;
+  --led-6: #f4f4f4;
+  --font-display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0a1517; --paper: #112226; --ink: #e4f3f3; --muted: #9ab8bc; --line: #22393d;
+    --accent: #4fd1c5; --accent-soft: #143639; --flame: #ff8a4c; --flame-soft: #3a2218;
+    --ok: #5fd394; --ok-soft: #143326; --err: #ff7a85; --err-soft: #3a1820;
+    --code-bg: #071114; --board: #0d4a60; --led-off: #2a3639; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0a1517; --paper: #112226; --ink: #e4f3f3; --muted: #9ab8bc; --line: #22393d;
+  --accent: #4fd1c5; --accent-soft: #143639; --flame: #ff8a4c; --flame-soft: #3a2218;
+  --ok: #5fd394; --ok-soft: #143326; --err: #ff7a85; --err-soft: #3a1820;
+  --code-bg: #071114; --board: #0d4a60; --led-off: #2a3639; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+code, pre, textarea, .symbols button, .serial, .expected { font-variant-ligatures: none; font-feature-settings: "calt" 0, "liga" 0; }
+.diag:empty { display: none; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 17px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 64px;
+}
+.wrap { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.1rem, 6vw, 3.2rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 800; }
+h3 { font-size: 1.2rem; font-weight: 600; }
+p { margin: 0; }
+ul, ol { margin: 0; padding-left: 22px; }
+code { font-family: var(--font-mono); font-size: 0.9em; background: var(--accent-soft); color: var(--ink); padding: 1px 6px; border-radius: 5px; }
+a { color: var(--accent); }
+.hero { padding-top: 40px; display: flex; flex-direction: column; gap: 14px; }
+.eyebrow { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+.lead { font-size: 1.15rem; color: var(--muted); max-width: 60ch; }
+.toc { display: flex; flex-wrap: wrap; gap: 8px; }
+.toc a { text-decoration: none; font-size: 0.92rem; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); }
+.toc a:hover, .toc a:focus-visible { border-color: var(--accent); color: var(--accent); }
+section { display: flex; flex-direction: column; gap: 14px; }
+.part-label { font-family: var(--font-mono); font-size: 0.78rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+.note { border-radius: 10px; padding: 14px 16px; background: var(--accent-soft); display: flex; gap: 12px; }
+.note.warn { background: var(--flame-soft); }
+.note > div { min-width: 0; }
+.note .ico { font-size: 1.3rem; line-height: 1.3; }
+.code { margin: 0; background: var(--code-bg); color: var(--code-ink); font-family: var(--font-mono); font-size: 0.9rem; line-height: 1.6; padding: 14px 16px; border-radius: 10px; overflow-x: auto; white-space: pre; }
+.k { color: var(--code-kw); } .f { color: var(--code-fn); } .s { color: var(--code-str); } .n { color: var(--code-num); } .c { color: var(--code-com); font-style: italic; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+th { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 700; }
+td code { white-space: nowrap; }
+
+/* Carte et LED */
+.bench { margin: 0 18px 12px; border-radius: 12px; background: var(--board); color: var(--board-ink); padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+.bench-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 0.8rem; }
+.leds { display: flex; flex-wrap: wrap; gap: 14px; }
+.led { display: flex; flex-direction: column; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 0.75rem; min-width: 34px; }
+.led i { width: 26px; height: 26px; border-radius: 50%; background: var(--led-off); border: 2px solid rgba(255,255,255,0.25); transition: background 40ms, box-shadow 40ms; }
+.led.on i { background: var(--c); box-shadow: 0 0 14px 4px var(--c); }
+.serial { background: #061216; color: #b8f5d0; border-radius: 8px; padding: 8px 10px; font-family: var(--font-mono); font-size: 0.82rem; min-height: 2.4em; max-height: 9em; overflow: auto; white-space: pre-wrap; }
+.serial:empty::before { content: "Moniteur série (vide)"; color: #5f8a83; }
+.diag { margin: 0 18px 12px; font-size: 0.9rem; display: flex; flex-direction: column; gap: 6px; }
+.diag .err { color: var(--err); background: var(--err-soft); border-radius: 8px; padding: 8px 10px; }
+.diag .warn { color: var(--ink); background: var(--flame-soft); border-radius: 8px; padding: 8px 10px; }
+
+/* Éditeurs */
+.lab { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+.lab.defi { border-color: var(--flame); }
+.lab.done { border-color: var(--ok); }
+.lab-head { padding: 16px 18px 6px; display: flex; flex-direction: column; gap: 8px; }
+.title-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
+.stars { font-size: 0.85rem; color: var(--muted); font-family: var(--font-mono); }
+.lab.defi .stars { color: var(--flame); font-weight: 600; }
+.badge-ok { font-size: 0.8rem; font-weight: 700; color: var(--ok); }
+.editor-box { padding: 10px 18px 0; }
+textarea.editor { width: 100%; min-height: 150px; resize: vertical; background: var(--code-bg); color: var(--code-ink); caret-color: var(--code-num);
+  font-family: var(--font-mono); font-size: 0.92rem; line-height: 1.6; border: 2px solid transparent; border-radius: 10px; padding: 12px 14px; tab-size: 2; white-space: pre; overflow-x: auto; }
+textarea.editor:focus { outline: none; border-color: var(--accent); }
+.symbols { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 18px 0; align-items: center; }
+.symbols button { font-family: var(--font-mono); font-size: 0.92rem; font-weight: 600; padding: 4px 10px; min-width: 2.4em; }
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 18px; }
+button { font-family: var(--font-body); font-size: 0.95rem; font-weight: 700; padding: 8px 16px; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; }
+button:hover { border-color: var(--accent); }
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+button.run { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.check { background: var(--ok); border-color: var(--ok); color: #fff; }
+button:disabled { opacity: 0.55; cursor: default; }
+.status { font-size: 0.85rem; color: var(--muted); margin-left: auto; }
+.status.saved { color: var(--ok); }
+.expected { margin: 0; font-family: var(--font-mono); font-size: 0.85rem; background: var(--bg); border-radius: 8px; padding: 8px 12px; white-space: pre-wrap; }
+.expected::before { content: "Ce qu'on doit voir :"; display: block; font-family: var(--font-body); font-size: 0.75rem; color: var(--muted); margin-bottom: 2px; }
+.hints { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.hint-item { margin: 0; padding: 8px 12px; border-radius: 8px; background: var(--accent-soft); font-size: 0.95rem; }
+.hint-item b { color: var(--accent); }
+.feedback { margin: 0 18px 12px; border-radius: 10px; padding: 12px 14px; font-size: 0.95rem; display: flex; flex-direction: column; gap: 6px; }
+.feedback.ok { background: var(--ok-soft); }
+.feedback.ko { background: var(--flame-soft); }
+.fb-title { font-weight: 700; }
+.answer { margin: 0 18px 16px; border: 2px dashed var(--line); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+.answer .ask { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.locked, .mini { color: var(--muted); font-size: 0.9rem; }
+.niveau { display: flex; flex-direction: column; gap: 4px; padding-top: 12px; border-top: 2px solid var(--accent); }
+.niveau h3 { color: var(--accent); }
+.progress { font-weight: 700; padding: 10px 14px; border-radius: 10px; background: var(--paper); border: 1px solid var(--line); }
+.send-panel { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+footer { color: var(--muted); font-size: 0.85rem; }
+@media (prefers-reduced-motion: reduce) { .led i { transition: none; } }
+</style>
+
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Atelier Arduino · Leçon 1</div>
+  <h1>Allumer des LED 💡</h1>
+  <p class="lead">Ton premier pas dans l'électronique : programmer une carte Arduino pour faire clignoter des lumières. Pas besoin de vraie carte, tout est simulé ici.</p>
+  <nav class="toc" aria-label="Sommaire">
+    <a href="#carte">La carte</a>
+    <a href="#structure">setup et loop</a>
+    <a href="#instructions">Les 3 instructions</a>
+    <a href="#python">Python vs Arduino</a>
+    <a href="#for">for et variables</a>
+    <a href="#serie">Moniteur série</a>
+    <a href="#exemples">Exemples</a>
+    <a href="#exos">Exercices</a>
+  </nav>
+</header>
+
+<section id="carte">
+  <div class="part-label">Partie 1</div>
+  <h2>C'est quoi, Arduino ?</h2>
+  <p>Arduino est une <b>petite carte électronique</b>, grande comme une carte bancaire. C'est un mini-ordinateur qu'on programme pour contrôler des objets : des LED, des moteurs, des capteurs, des robots… 🤖</p>
+  <p>La carte a des <b>broches</b> (en anglais <i>pins</i>), numérotées de 0 à 13. On y branche des composants. La broche <b>13</b> est spéciale : elle a déjà une petite LED soudée sur la carte.</p>
+  <p>Dans le simulateur de cette page, voici les LED que tu peux utiliser :</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Broche</th><th>LED</th></tr></thead>
+    <tbody>
+      <tr><td><code>13</code></td><td>🟠 la LED intégrée de la carte</td></tr>
+      <tr><td><code>2</code></td><td>🟢 verte</td></tr>
+      <tr><td><code>3</code></td><td>🟠 orange</td></tr>
+      <tr><td><code>4</code></td><td>🔴 rouge</td></tr>
+      <tr><td><code>5</code></td><td>🔵 bleue</td></tr>
+      <tr><td><code>6</code></td><td>⚪ blanche</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note warn"><span class="ico">⚡</span><div><b>Avec une vraie carte</b>, on branche toujours une LED avec une <b>résistance</b> (220 Ω par exemple), sinon elle grille. Le simulateur, lui, ne craint rien 😉</div></div>
+</section>
+
+<section id="structure">
+  <div class="part-label">Partie 2</div>
+  <h2>setup() et loop()</h2>
+  <p>Tout programme Arduino a <b>deux parties</b> :</p>
+<pre class="code"><span class="k">void</span> <span class="f">setup</span>() {
+  <span class="c">// s'exécute UNE SEULE fois, au démarrage</span>
+}
+
+<span class="k">void</span> <span class="f">loop</span>() {
+  <span class="c">// se répète À L'INFINI</span>
+}</pre>
+  <ul>
+    <li><code>setup()</code> : on prépare la carte (par exemple : « la broche 13 est une sortie »).</li>
+    <li><code>loop()</code> : le cœur du programme. Quand il arrive à la fin, il recommence au début, pour toujours.</li>
+  </ul>
+  <div class="note"><span class="ico">🔁</span><div><b>Tu connais déjà ça !</b> <code>loop()</code>, c'est exactement une boucle infinie, comme <code>while True:</code> en Python.</div></div>
+</section>
+
+<section id="instructions">
+  <div class="part-label">Partie 3</div>
+  <h2>Les 3 instructions pour les LED</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Instruction</th><th>Ce qu'elle fait</th></tr></thead>
+    <tbody>
+      <tr><td><code>pinMode(13, OUTPUT);</code></td><td>La broche 13 devient une <b>sortie</b> : elle peut envoyer du courant. À mettre dans <code>setup()</code>.</td></tr>
+      <tr><td><code>digitalWrite(13, HIGH);</code></td><td>Envoie du courant : la LED <b>s'allume</b>.</td></tr>
+      <tr><td><code>digitalWrite(13, LOW);</code></td><td>Coupe le courant : la LED <b>s'éteint</b>.</td></tr>
+      <tr><td><code>delay(1000);</code></td><td><b>Attend</b> 1000 millisecondes, c'est-à-dire 1 seconde.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Le programme le plus célèbre du monde Arduino, le <b>Blink</b> (« clignoter ») :</p>
+<pre class="code"><span class="k">void</span> <span class="f">setup</span>() {
+  <span class="f">pinMode</span>(<span class="n">13</span>, OUTPUT);
+}
+
+<span class="k">void</span> <span class="f">loop</span>() {
+  <span class="f">digitalWrite</span>(<span class="n">13</span>, HIGH);   <span class="c">// allume</span>
+  <span class="f">delay</span>(<span class="n">1000</span>);              <span class="c">// attend 1 seconde</span>
+  <span class="f">digitalWrite</span>(<span class="n">13</span>, LOW);    <span class="c">// éteins</span>
+  <span class="f">delay</span>(<span class="n">1000</span>);              <span class="c">// attend 1 seconde</span>
+}</pre>
+</section>
+
+<section id="python">
+  <div class="part-label">Partie 4</div>
+  <h2>Python et Arduino : ce qui change</h2>
+  <p>Arduino se programme en <b>C++</b>. Les idées sont les mêmes qu'en Python, seule l'écriture change :</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Python</th><th>Arduino (C++)</th></tr></thead>
+    <tbody>
+      <tr><td><code>:</code> et décalage</td><td>des accolades <code>{ }</code></td></tr>
+      <tr><td>rien à la fin des lignes</td><td>un <b>point-virgule <code>;</code></b> à la fin de chaque instruction</td></tr>
+      <tr><td><code># commentaire</code></td><td><code>// commentaire</code></td></tr>
+      <tr><td><code>x = 5</code></td><td><code>int x = 5;</code> (on dit le <b>type</b> : <code>int</code> = nombre entier)</td></tr>
+      <tr><td><code>while x &gt; 0:</code></td><td><code>while (x &gt; 0) { … }</code> (la condition entre parenthèses)</td></tr>
+      <tr><td><code>print("Salut")</code></td><td><code>Serial.println("Salut");</code></td></tr>
+    </tbody>
+  </table></div>
+  <div class="note warn"><span class="ico">⚠️</span><div><b>Les majuscules comptent !</b> On écrit <code>digitalWrite</code>, <code>pinMode</code>, <code>HIGH</code>, <code>OUTPUT</code>. Avec <code>digitalwrite</code> ou <code>high</code>, ça ne marche pas.</div></div>
+</section>
+
+<section id="for">
+  <div class="part-label">Partie 5</div>
+  <h2>Les variables et la boucle for</h2>
+  <p>Une variable se déclare avec son type. Pratique pour changer la vitesse partout d'un coup :</p>
+<pre class="code"><span class="k">int</span> vitesse = <span class="n">300</span>;
+
+<span class="k">void</span> <span class="f">loop</span>() {
+  <span class="f">digitalWrite</span>(<span class="n">13</span>, HIGH);
+  <span class="f">delay</span>(vitesse);
+  <span class="f">digitalWrite</span>(<span class="n">13</span>, LOW);
+  <span class="f">delay</span>(vitesse);
+}</pre>
+  <p>La boucle <code>for</code> en C++ s'écrit en 3 morceaux, séparés par des <code>;</code> :</p>
+<pre class="code"><span class="k">for</span> (<span class="k">int</span> i = <span class="n">2</span>; i &lt;= <span class="n">6</span>; i++) {
+  <span class="f">pinMode</span>(i, OUTPUT);
+}</pre>
+  <ol>
+    <li><code>int i = 2</code> : <b>départ</b>, i commence à 2 ;</li>
+    <li><code>i &lt;= 6</code> : on continue <b>tant que</b> i est plus petit ou égal à 6 ;</li>
+    <li><code>i++</code> : à chaque tour, i <b>augmente de 1</b> (c'est un raccourci de <code>i = i + 1</code>).</li>
+  </ol>
+  <p>C'est l'équivalent de <code>for i in range(2, 7):</code> en Python. Ici, ça configure les broches 2, 3, 4, 5 et 6 en une seule boucle !</p>
+</section>
+
+<section id="serie">
+  <div class="part-label">Partie 6</div>
+  <h2>Le moniteur série : le print d'Arduino</h2>
+  <p>Pour afficher du texte (très utile pour comprendre ce que fait ton programme), on utilise le <b>moniteur série</b> :</p>
+<pre class="code"><span class="k">void</span> <span class="f">setup</span>() {
+  Serial.<span class="f">begin</span>(<span class="n">9600</span>);           <span class="c">// on démarre le moniteur (à faire une fois)</span>
+  Serial.<span class="f">println</span>(<span class="s">"Bonjour !"</span>);   <span class="c">// affiche et va à la ligne</span>
+}</pre>
+  <p><code>Serial.print(...)</code> affiche sans aller à la ligne. Sans <code>Serial.begin(9600);</code>, rien ne s'affiche.</p>
+</section>
+
+<section id="exemples">
+  <div class="part-label">Partie 7</div>
+  <h2>Exemples à simuler</h2>
+  <p>Appuie sur <b>▶ Simuler</b> et regarde les LED ! Puis modifie le code pour voir ce qui change.</p>
+  <div id="examples"></div>
+</section>
+
+<section id="erreurs">
+  <div class="part-label">Partie 8</div>
+  <h2>Les erreurs classiques</h2>
+  <ul>
+    <li>Oublier le <code>;</code> à la fin d'une ligne</li>
+    <li>Se tromper de majuscules : <code>digitalwrite</code> au lieu de <code>digitalWrite</code></li>
+    <li>Oublier <code>pinMode(…, OUTPUT);</code> dans <code>setup()</code> → la LED ne s'allume pas</li>
+    <li>Oublier le <code>delay</code> après <code>LOW</code> → la LED s'éteint si peu de temps qu'on croit qu'elle reste allumée</li>
+  </ul>
+</section>
+
+<section id="exos">
+  <div class="part-label">Partie 9 · à toi de jouer</div>
+  <h2>Exercices</h2>
+  <p><b>On monte doucement :</b> trous à compléter, puis bugs à trouver, puis code guidé, et à la fin, tout seul.</p>
+  <p>Appuie sur <b>▶ Simuler</b> pour voir tes LED, puis sur <b>✔ Vérifier</b> : la page analyse ce que font tes LED et te dit si c'est juste. Si tu bloques, demande un indice 💡. Après ton premier essai, le <b>mode réponse</b> 📖 te montre une solution expliquée.</p>
+  <div class="progress" id="progress" aria-live="polite">Exercices réussis : 0 / 8</div>
+  <div id="exercises" style="display:flex;flex-direction:column;gap:20px"></div>
+</section>
+
+<section class="send-panel" aria-labelledby="send-title">
+  <h3 id="send-title">Quand tu as fini</h3>
+  <p>Reviens dans la conversation avec Claude et écris <b>« corrige »</b>. Claude pourra lire ce que tu as écrit ici.</p>
+  <p class="mini" id="save-info">Connexion à la sauvegarde…</p>
+  <div><button id="copy-all" type="button">Copier tout mon code</button> <span class="mini" id="copy-msg"></span></div>
+  <textarea id="copy-fallback" hidden readonly style="width:100%;min-height:120px;font-family:var(--font-mono)"></textarea>
+</section>
+
+<footer>Atelier Arduino · Leçon 1 · Objectif X & MIT 🤖</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  // ================================================================ SIMULATEUR
+  const LIMITE = 20000;          // millisecondes simulées
+  const PINS = [13, 2, 3, 4, 5, 6];
+  const NOMS_LED = { 13: "LED intégrée", 2: "verte", 3: "orange", 4: "rouge", 5: "bleue", 6: "blanche" };
+  class Stop extends Error {}
+  class Infini extends Error {}
+  class ArduErr extends Error {}
+
+  function nettoyer(s) {
+    return s.replace(/[“”„«»]/g, '"').replace(/[‘’]/g, "'")
+            .replace(/[  ]/g, " ").replace(/[−–—]/g, "-").replace(/\t/g, "  ").replace(/\r\n?/g, "\n");
+  }
+
+  function pointVirgule(src) {
+    const L = src.split("\n");
+    let bloc = false;
+    for (let i = 0; i < L.length; i++) {
+      let l = L[i];
+      if (bloc) { if (l.includes("*/")) { bloc = false; l = l.slice(l.indexOf("*/") + 2); } else continue; }
+      if (l.includes("/*")) { bloc = !l.includes("*/"); l = l.slice(0, l.indexOf("/*")); }
+      l = l.replace(/\/\/.*$/, "").trim();
+      if (!l || /^#/.test(l)) continue;
+      if (/[;{},]$/.test(l)) continue;
+      if (/^(if|else|for|while)\b/.test(l) && /(\)|else)$/.test(l)) continue;
+      if (/^(void|int|float|bool|long|byte)\s+\w+\s*\([^)]*\)$/.test(l)) continue;
+      if (/^else$/.test(l) || /^do$/.test(l)) continue;
+      return { ligne: i + 1, texte: L[i].trim() };
+    }
+    return null;
+  }
+
+  function accolades(src) {
+    const s = src.replace(/"(?:[^"\\]|\\.)*"/g, '""').replace(/\/\/.*$/gm, "");
+    let n = 0;
+    for (const ch of s) { if (ch === "{") n++; else if (ch === "}") { n--; if (n < 0) return "Il y a une accolade } en trop (une fermeture sans ouverture)."; } }
+    return n > 0 ? "Il manque " + n + " accolade(s) } pour fermer un bloc. Chaque { doit avoir sa }." : null;
+  }
+
+  const TYPES = "(?:const\\s+)?(?:unsigned\\s+)?(?:int|long|float|double|bool|boolean|byte|char|String)";
+  function transpiler(src) {
+    let s = src;
+    s = s.replace(/\b(?:void|int|float|double|bool|boolean|long|byte|String|char|unsigned\s+(?:long|int))\s+([A-Za-z_]\w*)\s*\(([^)]*)\)\s*\{/g,
+      (m, nom, params) => "function " + nom + "(" + params.split(",").map(p => p.trim().split(/\s+/).pop().replace(/[\[\]*&]/g, "")).filter(Boolean).join(", ") + ") {");
+    s = s.replace(new RegExp("\\b" + TYPES + "\\s+([A-Za-z_]\\w*)\\s*\\[\\s*\\d*\\s*\\]\\s*=\\s*\\{([^}]*)\\}", "g"), "let $1 = [$2]");
+    s = s.replace(new RegExp("\\b" + TYPES + "\\s+(?=[A-Za-z_])", "g"), "let ");
+    s = s.replace(/\b(while|for)\s*\(((?:[^()]|\([^()]*\))*)\)\s*\{/g, m => m + " __g();");
+    s = s.replace(/\bdo\s*\{/g, "do { __g();");
+    return s;
+  }
+
+  const API_NOMS = ["pinMode", "digitalWrite", "delay", "millis", "Serial", "HIGH", "LOW", "OUTPUT", "INPUT", "INPUT_PULLUP", "LED_BUILTIN", "__g"];
+  const CONNUS = ["pinMode", "digitalWrite", "delay", "millis", "Serial", "HIGH", "LOW", "OUTPUT", "INPUT", "setup", "loop"];
+
+  function simuler(srcBrut) {
+    const src = nettoyer(srcBrut);
+    const r = { events: [], serie: "", alertes: [], erreur: null, T: 0, modes: {}, src };
+    if (/___/.test(src)) { r.erreur = "Il reste des trous ___ à remplir : remplace chaque ___ par le bon code."; return r; }
+    const pv = pointVirgule(src);
+    if (pv) { r.erreur = "Il manque un point-virgule ; à la fin de la ligne " + pv.ligne + " : « " + pv.texte + " »."; return r; }
+    const acc = accolades(src);
+    if (acc) { r.erreur = acc; return r; }
+    if (!/\bvoid\s+setup\s*\(/.test(src)) { r.erreur = "Il manque la fonction void setup() { … }. Tout programme Arduino en a une."; return r; }
+    if (!/\bvoid\s+loop\s*\(/.test(src)) { r.erreur = "Il manque la fonction void loop() { … }. Tout programme Arduino en a une (même vide)."; return r; }
+    let temps = 0, pas = 0, serieOn = false;
+    const niveaux = {}, dejaAlerte = {};
+    const alerte = (cle, msg) => { if (!dejaAlerte[cle]) { dejaAlerte[cle] = true; r.alertes.push(msg); } };
+    const ecrire = (t) => {
+      if (!serieOn) { alerte("serie", "Rien ne s'affiche dans le moniteur série : il faut d'abord Serial.begin(9600); dans setup()."); return; }
+      if (r.serie.length < 6000) r.serie += t;
+    };
+    const api = {
+      HIGH: 1, LOW: 0, OUTPUT: "OUTPUT", INPUT: "INPUT", INPUT_PULLUP: "INPUT", LED_BUILTIN: 13,
+      pinMode(p, m) { r.modes[p] = m; },
+      digitalWrite(p, v) {
+        if (typeof p !== "number" || isNaN(p)) throw new ArduErr("digitalWrite a besoin d'un numéro de broche, par exemple digitalWrite(13, HIGH);");
+        v = v ? 1 : 0;
+        if (r.modes[p] !== "OUTPUT") { alerte("mode" + p, "La broche " + p + " n'est pas configurée en sortie : ajoute pinMode(" + p + ", OUTPUT); dans setup()."); return; }
+        if ((niveaux[p] || 0) !== v) { niveaux[p] = v; r.events.push({ t: temps, p, v }); }
+      },
+      delay(ms) {
+        if (typeof ms !== "number" || isNaN(ms)) throw new ArduErr("delay() a besoin d'un nombre de millisecondes, par exemple delay(1000);");
+        temps += Math.max(0, ms);
+        if (temps > LIMITE) throw new Stop();
+      },
+      millis() { return temps; },
+      Serial: { begin() { serieOn = true; }, println(x) { ecrire((x === undefined ? "" : String(x)) + "\n"); }, print(x) { ecrire(String(x)); } },
+      __g() { if (++pas > 200000) throw new Infini(); },
+    };
+    let prog;
+    try {
+      prog = new Function(...API_NOMS, '"use strict";\n' + transpiler(src) + "\n;return { setup: typeof setup === 'function' ? setup : null, loop: typeof loop === 'function' ? loop : null };");
+    } catch (e) {
+      r.erreur = "Erreur d'écriture (syntaxe) : vérifie les parenthèses ( ), les accolades { }, les guillemets et les points-virgules.";
+      return r;
+    }
+    try {
+      const f = prog(...API_NOMS.map(n => api[n]));
+      f.setup();
+      let tours = 0;
+      while (temps <= LIMITE && tours < 4000) { pas = 0; f.loop(); tours++; }
+    } catch (e) {
+      if (!(e instanceof Stop)) r.erreur = traduire(e);
+    }
+    r.T = Math.min(temps, LIMITE);
+    if (r.T === 0) r.T = 1;
+    return r;
+  }
+
+  function traduire(e) {
+    if (e instanceof Infini) return "Ton programme tourne en rond sans jamais avancer : une boucle while ou for ne s'arrête jamais. Vérifie sa condition.";
+    if (e instanceof ArduErr) return e.message;
+    const m = String(e && e.message || e);
+    let x = m.match(/^(\w+) is not defined/);
+    if (x) {
+      const bon = CONNUS.find(c => c.toLowerCase() === x[1].toLowerCase());
+      if (bon) return "Attention aux majuscules : on écrit « " + bon + " » et pas « " + x[1] + " ».";
+      return "Arduino ne connaît pas « " + x[1] + " ». Vérifie l'orthographe, et que la variable est déclarée (par exemple int " + x[1] + " = 0;).";
+    }
+    x = m.match(/(\S+) is not a function/);
+    if (x) return "« " + x[1] + " » n'existe pas. Vérifie l'orthographe (par exemple Serial.println, avec un L minuscule).";
+    return "Ton programme a planté : " + m;
+  }
+
+  // ---------- analyse de la chronologie
+  function etatA(r, p, t) { let v = 0; for (const e of r.events) { if (e.t > t) break; if (e.p === p) v = e.v; } return v; }
+  function segments(r, pins) {
+    const temps = [0, ...r.events.filter(e => pins.includes(e.p)).map(e => e.t), r.T].filter((t, i, a) => a.indexOf(t) === i).sort((a, b) => a - b);
+    const out = [];
+    for (let i = 0; i < temps.length - 1; i++) {
+      const t0 = temps[i], d = temps[i + 1] - t0;
+      if (d <= 0) continue;
+      const on = pins.filter(p => etatA(r, p, t0));
+      const cle = on.join("+") || "aucune";
+      const dernier = out[out.length - 1];
+      if (dernier && dernier.cle === cle) dernier.d += d; else out.push({ cle, d, partiel: false });
+    }
+    if (out.length) out[out.length - 1].partiel = true;
+    return out;
+  }
+  const nomLed = (cle) => cle === "aucune" ? "aucune LED" : cle.split("+").map(p => (p === "13" ? "la LED intégrée" : "la LED " + NOMS_LED[p]) + " (" + p + ")").join(" et ");
+  function premiereErreur(r) { return r.erreur; }
+
+  function clignote(r, pin, on, off) {
+    const s = segments(r, [pin]);
+    const i0 = s.findIndex(x => x.cle !== "aucune");
+    if (i0 < 0) return "La LED de la broche " + pin + " ne s'allume jamais.";
+    const suite = s.slice(i0);
+    if (suite.length === 1) return "La LED s'allume mais ne s'éteint jamais (ou si peu de temps qu'on ne le voit pas). As-tu mis LOW, et un delay après LOW ?";
+    const att = [on, off, on, off];
+    for (let k = 0; k < 4; k++) {
+      const seg = suite[k];
+      if (!seg) break;
+      if (seg.partiel && k >= 2) break;
+      if (Math.abs(seg.d - att[k]) > 1) {
+        return (k % 2 === 0 ? "La LED reste allumée " : "La LED reste éteinte ") + seg.d + " ms au lieu de " + att[k] + " ms.";
+      }
+    }
+    return null;
+  }
+
+  function sequence(r, pins, attendu, intro) {
+    const s = segments(r, pins);
+    let i0 = s.findIndex(x => x.cle !== "aucune");
+    if (i0 < 0) return "Aucune LED ne s'allume. As-tu configuré les broches avec pinMode ?";
+    const suite = s.slice(i0);
+    for (let k = 0; k < attendu.length; k++) {
+      const [cle, d] = attendu[k], seg = suite[k];
+      if (!seg) return intro + " La séquence s'arrête trop tôt : après " + nomLed(attendu[k - 1][0]) + ", il faut allumer " + nomLed(cle) + ".";
+      if (seg.cle.includes("+")) return "Deux LED sont allumées en même temps (" + nomLed(seg.cle) + ") : pense à éteindre la précédente avec LOW.";
+      if (seg.cle !== cle) return "Étape " + (k + 1) + " : il faut allumer " + nomLed(cle) + ", et c'est " + nomLed(seg.cle) + " qui est allumée.";
+      if (!(seg.partiel && k === attendu.length - 1) && Math.abs(seg.d - d) > 1) return "Étape " + (k + 1) + " : " + nomLed(cle) + " doit rester allumée " + d + " ms, et elle reste " + seg.d + " ms.";
+    }
+    return null;
+  }
+
+  const CHECKS = {
+    a1: (r) => clignote(r, 13, 1000, 1000),
+    a2: (r) => clignote(r, 13, 200, 200),
+    a3: (r) => clignote(r, 13, 500, 500),
+    a4: (r) => clignote(r, 13, 1000, 1000),
+    a5: (r) => sequence(r, [2, 3, 4], [["2", 3000], ["3", 1000], ["4", 3000], ["2", 3000]], ""),
+    a6: (r) => {
+      const L = r.serie.split("\n").map(l => l.trim()).filter(l => l);
+      const att = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
+      if (!L.length) return "Rien ne s'affiche dans le moniteur série. N'oublie pas Serial.begin(9600); puis Serial.println(i); dans la boucle.";
+      if (L.length > 10 && L.slice(0, 10).join() === att.join()) return "Les nombres se répètent à l'infini : la boucle for doit être dans setup(), pas dans loop().";
+      if (L.join() !== att.join()) {
+        if (L[0] === "0") return "Ton compteur commence à 0. Il doit commencer à 1 : regarde le départ de ta boucle for.";
+        if (L.length === 9) return "Il manque le 10 : ta condition doit être i <= 10 (et pas i < 10).";
+        return "J'attendais les nombres de 1 à 10 (un par ligne), et le moniteur affiche : " + L.slice(0, 12).join(", ") + ".";
+      }
+      return null;
+    },
+    a7: (r) => {
+      if (!/\bfor\s*\(/.test(r.src)) return "Utilise une boucle for pour passer d'une LED à l'autre (c'est tout l'intérêt de l'exercice 😉).";
+      return sequence(r, [2, 3, 4, 5, 6], [["2", 200], ["3", 200], ["4", 200], ["5", 200], ["6", 200], ["2", 200]], "");
+    },
+    a8: (r) => {
+      const s = segments(r, [13]);
+      const i0 = s.findIndex(x => x.cle !== "aucune");
+      if (i0 < 0) return "La LED 13 ne s'allume jamais.";
+      const suite = s.slice(i0);
+      const on = [200, 200, 200, 600, 600, 600, 200, 200, 200];
+      const off = [200, 200, 600, 200, 200, 600, 200, 200];
+      const nomSig = (d) => d === 600 ? "un trait (600 ms)" : "un point (200 ms)";
+      for (let k = 0; k < 9; k++) {
+        const h = suite[2 * k];
+        if (!h) return "Le message SOS s'arrête au signal n°" + (k + 1) + ".";
+        if (h.partiel || Math.abs(h.d - on[k]) > 1) return "Le signal n°" + (k + 1) + " doit être " + nomSig(on[k]) + ", et la LED reste allumée " + h.d + " ms.";
+        const b = suite[2 * k + 1];
+        if (k < 8) {
+          if (!b) return "Le message SOS s'arrête après le signal n°" + (k + 1) + ".";
+          if (Math.abs(b.d - off[k]) > 1) return "Après le signal n°" + (k + 1) + ", la pause doit durer " + off[k] + " ms (" + (off[k] === 600 ? "entre deux lettres" : "dans une lettre") + "), et elle dure " + b.d + " ms.";
+        } else if (b && !b.partiel && b.d < 1000) {
+          return "Après le dernier signal, fais une longue pause (au moins 1000 ms) avant de recommencer le SOS. Ta pause dure " + b.d + " ms.";
+        }
+      }
+      return null;
+    },
+  };
+
+  // ================================================================ CONTENU
+  const EXEMPLES = [
+    { id: "xA", title: "Exemple A · Blink, le classique", code: "void setup() {\n  pinMode(13, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(13, HIGH);\n  delay(1000);\n  digitalWrite(13, LOW);\n  delay(1000);\n}\n" },
+    { id: "xB", title: "Exemple B · Deux LED qui alternent", code: "void setup() {\n  pinMode(2, OUTPUT);\n  pinMode(4, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(2, HIGH);\n  digitalWrite(4, LOW);\n  delay(500);\n  digitalWrite(2, LOW);\n  digitalWrite(4, HIGH);\n  delay(500);\n}\n" },
+    { id: "xC", title: "Exemple C · Le moniteur série", code: "void setup() {\n  Serial.begin(9600);\n  Serial.println(\"Bonjour, je suis Arduino !\");\n  int fusees = 3;\n  Serial.print(\"Nombre de fusées : \");\n  Serial.println(fusees);\n}\n\nvoid loop() {\n}\n" },
+    { id: "xD", title: "Exemple D · Une boucle for qui allume tout", code: "void setup() {\n  for (int i = 2; i <= 6; i++) {\n    pinMode(i, OUTPUT);\n  }\n}\n\nvoid loop() {\n  for (int i = 2; i <= 6; i++) {\n    digitalWrite(i, HIGH);\n    delay(300);\n  }\n  for (int i = 2; i <= 6; i++) {\n    digitalWrite(i, LOW);\n  }\n  delay(600);\n}\n" },
+  ];
+
+  const NIVEAUX = {
+    1: ["Niveau 1 · Complète les trous", "Le code est presque écrit : remplace chaque ___ par ce qui manque."],
+    2: ["Niveau 2 · Trouve les bugs", "Le code est écrit, mais il ne marche pas. Simule-le, lis le message, et corrige-le."],
+    3: ["Niveau 3 · Code guidé", "Les étapes sont écrites en commentaires (//). Écris le code sous chaque étape."],
+    4: ["Niveau 4 · Tout seul", "À toi de tout écrire ! Les indices sont là si tu bloques."],
+  };
+
+  const EXOS = [
+    { id: "a1", niveau: 1, stars: "⭐", title: "1. Mon premier Blink 💡",
+      text: "<p>Remplace les <code>___</code> pour que la LED 13 s'allume <b>1 seconde</b>, puis s'éteigne <b>1 seconde</b>, à l'infini.</p>",
+      start: "void setup() {\n  pinMode(13, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(13, ___);   // allume la LED\n  delay(1000);\n  digitalWrite(13, ___);   // éteins la LED\n  delay(___);\n}\n",
+      expected: "LED 13 : allumée 1 s, éteinte 1 s, allumée 1 s…",
+      hints: ["Pour allumer, on envoie du courant : c'est HIGH. Pour éteindre, c'est LOW.", "Le dernier trou est une durée en millisecondes. 1 seconde = 1000 ms.", "Les trous sont, dans l'ordre : HIGH, LOW et 1000."],
+      solution: "void setup() {\n  pinMode(13, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(13, HIGH);\n  delay(1000);\n  digitalWrite(13, LOW);\n  delay(1000);\n}",
+      explain: ["HIGH allume, LOW éteint.", "delay(1000) attend 1 seconde.", "loop() recommence tout seul : la LED clignote à l'infini."] },
+    { id: "a2", niveau: 1, stars: "⭐", title: "2. Plus vite ! ⚡",
+      text: "<p>Remplace les <code>___</code> pour que la LED 13 clignote vite : allumée <b>200 ms</b>, éteinte <b>200 ms</b>.</p>",
+      start: "void setup() {\n  pinMode(13, ___);\n}\n\nvoid loop() {\n  digitalWrite(13, HIGH);\n  delay(___);\n  digitalWrite(13, LOW);\n  delay(___);\n}\n",
+      expected: "LED 13 : allumée 0,2 s, éteinte 0,2 s… (un clignotement rapide)",
+      hints: ["Le premier trou : la broche doit devenir une sortie. En anglais, sortie se dit OUTPUT.", "Les deux autres trous sont des durées en millisecondes.", "Les trous sont : OUTPUT, 200 et 200."],
+      solution: "void setup() {\n  pinMode(13, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(13, HIGH);\n  delay(200);\n  digitalWrite(13, LOW);\n  delay(200);\n}",
+      explain: ["OUTPUT : la broche envoie du courant.", "Plus le delay est petit, plus la LED clignote vite."] },
+    { id: "a3", niveau: 2, stars: "⭐⭐", title: "3. Les deux bugs 🐛🐛",
+      text: "<p>Ce programme devrait faire clignoter la LED 13 (<b>500 ms</b> allumée, <b>500 ms</b> éteinte)… mais il a <b>2 bugs</b> ! Simule-le, lis le message d'erreur, corrige, et recommence.</p>",
+      start: "void setup() {\n}\n\nvoid loop() {\n  digitalWrite(13, HIGH);\n  delay(500)\n  digitalWrite(13, LOW);\n  delay(500);\n}\n",
+      expected: "LED 13 : allumée 0,5 s, éteinte 0,5 s…",
+      hints: ["Premier bug : regarde bien la fin de chaque ligne. Il en manque un petit bout sur l'une d'elles.", "Il manque un ; à la fin de delay(500). Deuxième bug : la carte ne sait pas que la broche 13 est une sortie.", "Dans setup(), ajoute pinMode(13, OUTPUT);"],
+      solution: "void setup() {\n  pinMode(13, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(13, HIGH);\n  delay(500);\n  digitalWrite(13, LOW);\n  delay(500);\n}",
+      explain: ["En C++, chaque instruction se termine par un ;", "Sans pinMode(13, OUTPUT); la broche n'envoie pas correctement le courant : c'est la ligne la plus souvent oubliée !"] },
+    { id: "a4", niveau: 2, stars: "⭐⭐", title: "4. La LED qui ne s'éteint jamais 🔦",
+      text: "<p>Ce programme devrait faire clignoter la LED 13 (1 s / 1 s), mais elle reste allumée tout le temps. Trouve le bug !</p>",
+      start: "void setup() {\n  pinMode(13, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(13, HIGH);\n  delay(1000);\n  digitalWrite(13, HIGH);\n  delay(1000);\n}\n",
+      expected: "LED 13 : allumée 1 s, éteinte 1 s…",
+      hints: ["Lis chaque ligne de loop() à voix haute : « allume, attends, … ».", "Les deux digitalWrite font la même chose.", "Le deuxième doit éteindre la LED : remplace HIGH par LOW."],
+      solution: "void setup() {\n  pinMode(13, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(13, HIGH);\n  delay(1000);\n  digitalWrite(13, LOW);\n  delay(1000);\n}",
+      explain: ["Le deuxième digitalWrite rallumait la LED au lieu de l'éteindre.", "Lire son code ligne par ligne, c'est la meilleure méthode pour trouver un bug."] },
+    { id: "a5", niveau: 3, stars: "⭐⭐", title: "5. Le feu tricolore 🚦",
+      text: "<p>Programme un feu : <b>vert</b> (broche 2) pendant 3 s, puis <b>orange</b> (broche 3) pendant 1 s, puis <b>rouge</b> (broche 4) pendant 3 s, et on recommence. Une seule couleur allumée à la fois ! Écris le code sous chaque commentaire.</p>",
+      start: "void setup() {\n  // 1. Configure les broches 2, 3 et 4 en sortie (OUTPUT)\n\n}\n\nvoid loop() {\n  // 2. Vert (broche 2) : allume, attends 3 secondes, éteins\n\n  // 3. Orange (broche 3) : allume, attends 1 seconde, éteins\n\n  // 4. Rouge (broche 4) : allume, attends 3 secondes, éteins\n\n}\n",
+      expected: "🟢 3 s → 🟠 1 s → 🔴 3 s → 🟢 3 s…",
+      hints: ["Étape 1 : trois lignes, pinMode(2, OUTPUT); pinMode(3, OUTPUT); pinMode(4, OUTPUT);", "Étape 2 : digitalWrite(2, HIGH); delay(3000); digitalWrite(2, LOW); Fais pareil pour les étapes 3 et 4.", "Attention aux durées : 3000 ms pour le vert et le rouge, 1000 ms pour l'orange."],
+      solution: "void setup() {\n  pinMode(2, OUTPUT);\n  pinMode(3, OUTPUT);\n  pinMode(4, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(2, HIGH);\n  delay(3000);\n  digitalWrite(2, LOW);\n\n  digitalWrite(3, HIGH);\n  delay(1000);\n  digitalWrite(3, LOW);\n\n  digitalWrite(4, HIGH);\n  delay(3000);\n  digitalWrite(4, LOW);\n}",
+      explain: ["Chaque couleur : on l'allume, on attend, on l'éteint.", "Comme on éteint avant d'allumer la suivante, une seule LED est allumée à la fois.", "loop() recommence au vert tout seul."] },
+    { id: "a6", niveau: 3, stars: "⭐⭐⭐", title: "6. Le compteur du moniteur série 🔢",
+      text: "<p>Avec une boucle <code>for</code>, affiche les nombres de <b>1 à 10</b> dans le moniteur série, <b>une seule fois</b>. Écris le code sous chaque commentaire.</p>",
+      start: "void setup() {\n  // 1. Démarre le moniteur série\n\n  // 2. Avec une boucle for, affiche les nombres de 1 à 10 (Serial.println)\n\n}\n\nvoid loop() {\n  // rien ici : on veut compter une seule fois\n}\n",
+      expected: "Moniteur série :\n1\n2\n…\n10",
+      hints: ["Étape 1 : Serial.begin(9600);", "Étape 2 : for (int i = 1; i <= 10; i++) { … }", "Dans la boucle : Serial.println(i);"],
+      solution: "void setup() {\n  Serial.begin(9600);\n  for (int i = 1; i <= 10; i++) {\n    Serial.println(i);\n  }\n}\n\nvoid loop() {\n  // rien ici : on veut compter une seule fois\n}",
+      explain: ["Serial.begin(9600); démarre le moniteur série.", "La boucle for : i commence à 1, continue tant que i <= 10, et augmente de 1 à chaque tour.", "Elle est dans setup(), donc elle ne s'exécute qu'une fois."] },
+    { id: "a7", niveau: 4, stars: "⭐⭐⭐", title: "7. Le chenillard 🚂",
+      text: "<p>Allume les LED des broches <b>2, 3, 4, 5, 6</b> <b>une par une</b> : chacune reste allumée <b>200 ms</b>, puis s'éteint et laisse la place à la suivante. Après la 6, on recommence à la 2. Utilise une <b>boucle for</b> !</p>",
+      start: "",
+      expected: "🟢 → 🟠 → 🔴 → 🔵 → ⚪ → 🟢 → … (200 ms chacune)",
+      hints: ["Dans setup(), une boucle for de 2 à 6 avec pinMode(i, OUTPUT); (regarde l'exemple D).", "Dans loop(), une boucle for de 2 à 6 aussi. Pour chaque i : allume, attends 200 ms, éteins.", "for (int i = 2; i <= 6; i++) { digitalWrite(i, HIGH); delay(200); digitalWrite(i, LOW); }"],
+      solution: "void setup() {\n  for (int i = 2; i <= 6; i++) {\n    pinMode(i, OUTPUT);\n  }\n}\n\nvoid loop() {\n  for (int i = 2; i <= 6; i++) {\n    digitalWrite(i, HIGH);\n    delay(200);\n    digitalWrite(i, LOW);\n  }\n}",
+      explain: ["La même boucle sert à configurer les 5 broches dans setup().", "Dans loop(), i prend les valeurs 2, 3, 4, 5, 6 : chaque LED s'allume puis s'éteint.", "Sans boucle, il faudrait 15 lignes au lieu de 5 !"] },
+    { id: "a8", niveau: 4, stars: "🔥 Défi", defi: true, title: "8. Le signal SOS en morse 🆘",
+      text: "<p>En morse, <b>SOS</b> s'écrit <b>· · · — — — · · ·</b>. Fais-le clignoter sur la LED 13 :</p><ul><li>un <b>point</b> = allumée 200 ms ; un <b>trait</b> = allumée 600 ms ;</li><li>entre deux signaux d'une même lettre : éteinte 200 ms ;</li><li>entre deux lettres : éteinte 600 ms ;</li><li>après le SOS complet : éteinte 2000 ms, puis on recommence.</li></ul><p>💡 Bonus de pro : crée tes propres fonctions <code>void point()</code> et <code>void trait()</code> !</p>",
+      start: "",
+      expected: "· · ·   — — —   · · ·      (pause)      · · · …",
+      hints: ["Commence par écrire une fonction void point() { … } qui allume 200 ms puis éteint 200 ms, et une fonction void trait() { … } qui allume 600 ms puis éteint 200 ms.", "Dans loop() : 3 points, puis delay(400) (pour arriver à 600 ms entre les lettres), 3 traits, delay(400), 3 points, puis une longue pause.", "Après le dernier point, la LED est déjà éteinte 200 ms : ajoute delay(1800) pour faire 2000 ms en tout. Tu peux utiliser des boucles for pour répéter 3 fois."],
+      solution: "void setup() {\n  pinMode(13, OUTPUT);\n}\n\nvoid point() {\n  digitalWrite(13, HIGH);\n  delay(200);\n  digitalWrite(13, LOW);\n  delay(200);\n}\n\nvoid trait() {\n  digitalWrite(13, HIGH);\n  delay(600);\n  digitalWrite(13, LOW);\n  delay(200);\n}\n\nvoid loop() {\n  for (int i = 0; i < 3; i++) { point(); }\n  delay(400);\n  for (int i = 0; i < 3; i++) { trait(); }\n  delay(400);\n  for (int i = 0; i < 3; i++) { point(); }\n  delay(1800);\n}",
+      explain: ["Deux fonctions point() et trait() : on écrit le code une fois, on l'utilise 9 fois.", "Chaque signal finit par 200 ms éteinte ; on ajoute 400 ms entre les lettres pour arriver à 600 ms.", "Le delay(1800) final fait une pause de 2000 ms en tout avant de recommencer."] },
+  ];
+
+  // ================================================================ INTERFACE
+  let db = null;
+  const LS = "arduino1-";
+  const lsGet = (k) => { try { return localStorage.getItem(LS + k); } catch (e) { return null; } };
+  const lsSet = (k, v) => { try { localStorage.setItem(LS + k, v); } catch (e) {} };
+  const editors = {}, statuses = {}, solved = {}, tried = {}, seen = {};
+  let joueur = null;
+
+  function setupEditor(ta) {
+    ta.addEventListener("input", () => {
+      const c = nettoyer(ta.value);
+      if (c !== ta.value) { const pos = ta.selectionStart - (ta.value.length - c.length); ta.value = c; ta.setSelectionRange(Math.max(0, pos), Math.max(0, pos)); }
+    });
+    ta.addEventListener("keydown", (e) => {
+      if (e.key === "Tab" && !e.shiftKey) { e.preventDefault(); ta.setRangeText("  ", ta.selectionStart, ta.selectionEnd, "end"); ta.dispatchEvent(new Event("input")); }
+      else if (e.key === "Enter" && !e.isComposing) {
+        const avant = ta.value.slice(0, ta.selectionStart);
+        const ligne = avant.slice(avant.lastIndexOf("\n") + 1);
+        let ind = (ligne.match(/^ */) || [""])[0];
+        if (/\{\s*(\/\/.*)?$/.test(ligne)) ind += "  ";
+        e.preventDefault(); ta.setRangeText("\n" + ind, ta.selectionStart, ta.selectionEnd, "end"); ta.dispatchEvent(new Event("input"));
+      }
+    });
+  }
+
+  function construireBanc() {
+    const bench = document.createElement("div"); bench.className = "bench";
+    const top = document.createElement("div"); top.className = "bench-top";
+    const t1 = document.createElement("span"); t1.textContent = "ARDUINO UNO · simulateur";
+    const horloge = document.createElement("span"); horloge.textContent = "⏱ 0.0 s";
+    top.append(t1, horloge);
+    const leds = document.createElement("div"); leds.className = "leds";
+    const els = {};
+    PINS.forEach(p => {
+      const d = document.createElement("div"); d.className = "led"; d.style.setProperty("--c", "var(--led-" + p + ")");
+      const i = document.createElement("i"); const s = document.createElement("span"); s.textContent = p === 13 ? "13 (L)" : String(p);
+      d.append(i, s); leds.appendChild(d); els[p] = d;
+    });
+    const serie = document.createElement("div"); serie.className = "serial"; serie.setAttribute("aria-label", "Moniteur série");
+    bench.append(top, leds, serie);
+    return { bench, horloge, els, serie };
+  }
+
+  function jouer(banc, r, btn) {
+    if (joueur) joueur.stop();
+    let arret = false, raf = 0;
+    const duree = Math.min(r.T, 12000);
+    const lignes = [];
+    banc.serie.textContent = r.serie;
+    const debut = performance.now();
+    const pas = () => {
+      if (arret) return;
+      const t = Math.min(performance.now() - debut, duree);
+      banc.horloge.textContent = "⏱ " + (t / 1000).toFixed(1) + " s";
+      PINS.forEach(p => banc.els[p].classList.toggle("on", !!etatA(r, p, t)));
+      if (t < duree) raf = requestAnimationFrame(pas); else fin();
+    };
+    const fin = () => { arret = true; btn.textContent = "▶ Simuler"; banc.horloge.textContent += " · fin de la démo"; joueur = null; };
+    btn.textContent = "⏹ Arrêter";
+    joueur = { stop: () => { cancelAnimationFrame(raf); fin(); PINS.forEach(p => banc.els[p].classList.remove("on")); } };
+    raf = requestAnimationFrame(pas);
+  }
+
+  function afficherDiag(diag, r) {
+    diag.textContent = "";
+    if (r.erreur) { const d = document.createElement("div"); d.className = "err"; d.textContent = "❌ " + r.erreur; diag.appendChild(d); }
+    r.alertes.forEach(a => { const d = document.createElement("div"); d.className = "warn"; d.textContent = "⚠️ " + a; diag.appendChild(d); });
+  }
+
+  async function sauver(id, extra) {
+    lsSet(id, editors[id].value);
+    if (!db) return;
+    try {
+      await db.doc("reponses/" + id).set(Object.assign({ exercice: id, code: editors[id].value, misAJour: new Date().toISOString(), reussi: !!solved[id], solutionVue: !!seen[id] }, extra || {}));
+      statuses[id].textContent = "✓ Enregistré pour Claude"; statuses[id].className = "status saved";
+    } catch (e) {}
+  }
+
+  function majProgression() {
+    const n = EXOS.filter(e => solved[e.id]).length;
+    document.getElementById("progress").textContent = "Exercices réussis : " + n + " / " + EXOS.length + (n === EXOS.length ? " 🤖 Atelier terminé, bravo !" : "");
+  }
+  function marquer(id, ok) {
+    solved[id] = ok;
+    const lab = document.getElementById("lab-" + id);
+    if (lab) { lab.classList.toggle("done", ok); lab.querySelector(".badge-ok").hidden = !ok; }
+    lsSet(id + "-ok", ok ? "1" : "");
+    majProgression();
+  }
+
+  function blocReponse(item) {
+    const box = document.createElement("div"); box.className = "answer"; box.id = "ans-" + item.id;
+    const h = document.createElement("div"); h.className = "fb-title"; h.textContent = "📖 Mode réponse";
+    const body = document.createElement("div");
+    box.append(h, body);
+    const rendre = () => {
+      body.textContent = "";
+      if (seen[item.id]) {
+        const pre = document.createElement("pre"); pre.className = "code"; pre.textContent = item.solution;
+        const ol = document.createElement("ol"); item.explain.forEach(x => { const li = document.createElement("li"); li.textContent = x; ol.appendChild(li); });
+        const tip = document.createElement("p"); tip.className = "mini"; tip.textContent = "Maintenant, efface ton code et réécris la solution sans la regarder, puis vérifie. C'est en l'écrivant toi-même que tu retiens !";
+        body.append(pre, ol, tip);
+      } else if (!tried[item.id]) {
+        const p = document.createElement("p"); p.className = "locked"; p.textContent = "🔒 La réponse se débloque après ton premier essai avec « ✔ Vérifier ».";
+        body.appendChild(p);
+      } else {
+        const ask = document.createElement("div"); ask.className = "ask";
+        const b = document.createElement("button"); b.type = "button"; b.textContent = "Voir la réponse";
+        b.addEventListener("click", () => {
+          ask.textContent = "";
+          const q = document.createElement("span"); q.textContent = "Tu es sûr ? As-tu essayé les 3 indices ? ";
+          const oui = document.createElement("button"); oui.type = "button"; oui.textContent = "Oui, montre-moi";
+          const non = document.createElement("button"); non.type = "button"; non.textContent = "Non, je réessaie 💪";
+          oui.addEventListener("click", () => { seen[item.id] = true; lsSet(item.id + "-sol", "1"); rendre(); sauver(item.id); });
+          non.addEventListener("click", rendre);
+          ask.append(q, oui, non);
+        });
+        ask.appendChild(b); body.appendChild(ask);
+      }
+    };
+    box._rendre = rendre;
+    if (lsGet(item.id + "-sol") === "1") seen[item.id] = true;
+    if (lsGet(item.id + "-tried") === "1") tried[item.id] = true;
+    rendre();
+    return box;
+  }
+
+  function construireLab(item, estExo) {
+    const lab = document.createElement("div"); lab.className = "lab" + (item.defi ? " defi" : "");
+    const head = document.createElement("div"); head.className = "lab-head";
+    const row = document.createElement("div"); row.className = "title-row";
+    const h = document.createElement("h3"); h.textContent = item.title; row.appendChild(h);
+    if (item.stars) { const s = document.createElement("span"); s.className = "stars"; s.textContent = item.stars; row.appendChild(s); }
+    head.appendChild(row);
+    if (estExo) {
+      lab.id = "lab-" + item.id;
+      const bd = document.createElement("span"); bd.className = "badge-ok"; bd.textContent = "✅ Réussi"; bd.hidden = true; row.appendChild(bd);
+      const t = document.createElement("div"); t.innerHTML = item.text; head.appendChild(t);
+      const ex = document.createElement("pre"); ex.className = "expected"; ex.textContent = item.expected; head.appendChild(ex);
+      const hs = document.createElement("div"); hs.className = "hints";
+      const hb = document.createElement("button"); hb.type = "button"; let vus = 0;
+      const lbl = () => { hb.textContent = "💡 Indice " + (vus + 1) + " sur " + item.hints.length; }; lbl();
+      hb.addEventListener("click", () => {
+        const p = document.createElement("p"); p.className = "hint-item";
+        const b = document.createElement("b"); b.textContent = "Indice " + (vus + 1) + " : ";
+        p.append(b, document.createTextNode(item.hints[vus])); hs.insertBefore(p, hb); vus++;
+        if (vus >= item.hints.length) hb.hidden = true; else lbl();
+      });
+      hs.appendChild(hb); head.appendChild(hs);
+    }
+    lab.appendChild(head);
+
+    const box = document.createElement("div"); box.className = "editor-box";
+    const ta = document.createElement("textarea"); ta.className = "editor"; ta.id = "code-" + item.id;
+    ta.spellcheck = false; ["autocapitalize", "autocomplete", "autocorrect"].forEach(a => ta.setAttribute(a, "off"));
+    ta.setAttribute("aria-label", "Code de " + item.title);
+    const depart = estExo ? (item.start || "") : item.code;
+    ta.value = estExo ? (lsGet(item.id) || depart) : depart;
+    if (!estExo || depart) ta.style.minHeight = (depart.split("\n").length * 1.6 + 2) + "em";
+    if (estExo && !depart) ta.placeholder = "// Écris tout ton programme ici : void setup() { … } et void loop() { … }";
+    box.appendChild(ta); lab.appendChild(box); setupEditor(ta);
+
+    const sym = document.createElement("div"); sym.className = "symbols";
+    const sl = document.createElement("span"); sl.className = "mini"; sl.textContent = "Symboles :"; sym.appendChild(sl);
+    ["{", "}", ";", "(", ")", "//", "=", "<=", "++", "HIGH", "LOW", "OUTPUT"].forEach(t => {
+      const b = document.createElement("button"); b.type = "button"; b.textContent = t; b.setAttribute("aria-label", "Insérer " + t);
+      b.addEventListener("mousedown", e => e.preventDefault());
+      b.addEventListener("click", () => { ta.focus(); ta.setRangeText(t, ta.selectionStart, ta.selectionEnd, "end"); ta.dispatchEvent(new Event("input")); });
+      sym.appendChild(b);
+    });
+    lab.appendChild(sym);
+
+    const bar = document.createElement("div"); bar.className = "bar";
+    const run = document.createElement("button"); run.type = "button"; run.className = "run"; run.textContent = "▶ Simuler"; bar.appendChild(run);
+    let chk = null;
+    if (estExo) { chk = document.createElement("button"); chk.type = "button"; chk.className = "check"; chk.textContent = "✔ Vérifier"; bar.appendChild(chk); }
+    const reset = document.createElement("button"); reset.type = "button"; reset.textContent = estExo ? "Recommencer" : "Remettre l'exemple";
+    reset.addEventListener("click", () => { ta.value = depart; ta.dispatchEvent(new Event("input")); });
+    if (!estExo || depart) bar.appendChild(reset);
+    const st = document.createElement("span"); st.className = "status"; bar.appendChild(st);
+    lab.appendChild(bar);
+
+    const banc = construireBanc(); lab.appendChild(banc.bench);
+    const diag = document.createElement("div"); diag.className = "diag"; diag.setAttribute("aria-live", "polite"); lab.appendChild(diag);
+
+    run.addEventListener("click", () => {
+      if (joueur && run.textContent.startsWith("⏹")) { joueur.stop(); return; }
+      const r = simuler(ta.value);
+      afficherDiag(diag, r);
+      if (!r.erreur || r.events.length) jouer(banc, r, run);
+      if (estExo) sauver(item.id);
+    });
+
+    if (estExo) {
+      editors[item.id] = ta; statuses[item.id] = st;
+      const fb = document.createElement("div"); fb.className = "feedback"; fb.hidden = true; fb.setAttribute("aria-live", "polite");
+      lab.insertBefore(fb, diag.nextSibling);
+      let tm = null;
+      ta.addEventListener("input", () => { lsSet(item.id, ta.value); st.textContent = "Modifié"; st.className = "status"; clearTimeout(tm); tm = setTimeout(() => sauver(item.id), 2500); });
+      chk.addEventListener("click", () => {
+        const code = nettoyer(ta.value);
+        fb.hidden = false; fb.textContent = "";
+        const titre = document.createElement("div"); titre.className = "fb-title"; const det = document.createElement("div");
+        if (!code.split("\n").some(l => l.trim() && !l.trim().startsWith("//"))) {
+          fb.className = "feedback ko"; titre.textContent = "✍️ Écris d'abord ton code 🙂"; fb.append(titre); return;
+        }
+        tried[item.id] = true; lsSet(item.id + "-tried", "1"); const a = document.getElementById("ans-" + item.id); if (a) a._rendre();
+        const r = simuler(code);
+        afficherDiag(diag, r);
+        let probleme = r.erreur || null;
+        if (!probleme) { const modes = r.alertes.find(x => x.startsWith("La broche")); if (modes) probleme = modes; }
+        if (!probleme) probleme = CHECKS[item.id](r);
+        if (!probleme) {
+          fb.className = "feedback ok"; titre.textContent = "✅ Bravo, c'est juste !";
+          det.textContent = item.defi ? "🔥 Défi relevé ! Tu peux être fier de toi." : "Tes LED font exactement ce qu'il faut.";
+          marquer(item.id, true);
+        } else {
+          fb.className = "feedback ko"; titre.textContent = "❌ Pas encore… mais tu y es presque !"; det.textContent = probleme;
+          marquer(item.id, false);
+        }
+        fb.append(titre, det);
+        if (!r.erreur || r.events.length) jouer(banc, r, run);
+        sauver(item.id, { verification: probleme || "OK" });
+      });
+      lab.appendChild(blocReponse(item));
+      if (lsGet(item.id + "-ok") === "1") setTimeout(() => marquer(item.id, true), 0);
+    }
+    return lab;
+  }
+
+  const exWrap = document.getElementById("examples");
+  exWrap.style.cssText = "display:flex;flex-direction:column;gap:16px";
+  EXEMPLES.forEach(e => exWrap.appendChild(construireLab(e, false)));
+  const exoWrap = document.getElementById("exercises");
+  let niv = null;
+  EXOS.forEach(e => {
+    if (e.niveau !== niv) {
+      niv = e.niveau;
+      const h = document.createElement("div"); h.className = "niveau";
+      const t = document.createElement("h3"); t.textContent = NIVEAUX[niv][0];
+      const p = document.createElement("p"); p.className = "mini"; p.textContent = NIVEAUX[niv][1];
+      h.append(t, p); exoWrap.appendChild(h);
+    }
+    exoWrap.appendChild(construireLab(e, true));
+  });
+  majProgression();
+
+  // ---------- copier
+  document.getElementById("copy-all").addEventListener("click", () => {
+    const txt = EXOS.map(e => "// ===== " + e.title + (solved[e.id] ? " (✅ vérifié)" : "") + (seen[e.id] ? " (📖 réponse vue)" : "") + " =====\n" + (editors[e.id].value.trim() || "// (pas encore fait)")).join("\n\n");
+    const msg = document.getElementById("copy-msg"), fbk = document.getElementById("copy-fallback");
+    const secours = () => { fbk.hidden = false; fbk.value = txt; fbk.focus(); fbk.select(); msg.textContent = "Sélectionne le texte ci-dessous et copie-le."; };
+    try { navigator.clipboard.writeText(txt).then(() => { msg.textContent = "Copié ✓ Colle-le dans la conversation."; }, secours); } catch (e) { secours(); }
+  });
+
+  // ---------- sauvegarde partagée avec Claude
+  const info = document.getElementById("save-info");
+  const minuteur = setTimeout(() => { if (!db) info.textContent = "Ton code est gardé sur cet appareil. Pour que Claude le voie, utilise « Copier tout mon code »."; }, 10000);
+  (async () => {
+    try {
+      const c = window.claude && window.claude.use ? await window.claude.use("db") : null;
+      clearTimeout(minuteur);
+      if (!c) { info.textContent = "Ton code est gardé sur cet appareil. Pour que Claude le voie, utilise « Copier tout mon code »."; return; }
+      db = c; info.textContent = "✓ Sauvegarde active : Claude pourra lire tes réponses.";
+      for (const e of EXOS) {
+        try {
+          const snap = await db.doc("reponses/" + e.id).get();
+          if (snap.exists) {
+            const d = snap.data();
+            if (!lsGet(e.id) && d.code) { editors[e.id].value = d.code; lsSet(e.id, d.code); }
+            if (d.reussi === true && editors[e.id].value === d.code) marquer(e.id, true);
+          }
+        } catch (err) {}
+      }
+    } catch (err) { clearTimeout(minuteur); info.textContent = "Ton code est gardé sur cet appareil. Pour que Claude le voie, utilise « Copier tout mon code »."; }
+  })();
+
+  window.__arduinoTest = { simuler, CHECKS, EXOS };
+})();
+</script>
